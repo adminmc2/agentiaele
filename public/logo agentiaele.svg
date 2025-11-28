@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 145.17 103.04">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #e96e14;
+      }
+
+      .cls-2 {
+        fill: #fec193;
+      }
+
+      .cls-3 {
+        fill: #ffa664;
+      }
+
+      .cls-4 {
+        fill: #ff7918;
+      }
+
+      .cls-5 {
+        fill: #ff9445;
+      }
+
+      .cls-6 {
+        fill: #ffd5b6;
+      }
+
+      ellipse {
+        stroke: #000000;
+        stroke-width: 0.5;
+      }
+    </style>
+  </defs>
+  <ellipse class="cls-3" cx="105.03" cy="87.75" rx="15.29" ry="15.29"/>
+  <ellipse class="cls-5" cx="129.86" cy="51.52" rx="15.31" ry="15.31"/>
+  <ellipse class="cls-6" cx="15.31" cy="51.52" rx="15.31" ry="15.31"/>
+  <ellipse class="cls-4" cx="105.04" cy="15.29" rx="15.29" ry="15.29"/>
+  <ellipse class="cls-4" cx="40.13" cy="15.29" rx="15.29" ry="15.29"/>
+  <ellipse class="cls-2" cx="40.13" cy="87.75" rx="15.29" ry="15.29"/>
+  <path class="cls-1" d="M72.58,34.29c-9.52,0-17.23,7.71-17.23,17.22s7.71,17.22,17.23,17.22,17.23-7.71,17.23-17.22-7.71-17.22-17.23-17.22ZM72.58,60.89c-5.18,0-9.37-4.2-9.37-9.37s4.2-9.37,9.37-9.37,9.37,4.2,9.37,9.37-4.2,9.37-9.37,9.37Z"/>
+</svg>

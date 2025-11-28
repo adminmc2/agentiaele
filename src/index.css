@@ -1,0 +1,455 @@
+/* ========================================
+   ANIMACIONES PERSONALIZADAS
+   ======================================== */
+@import './styles/animations.css';
+
+/* ========================================
+   TAILWIND CSS BASE
+   ======================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   DESIGN SYSTEM - AgentiaELE
+   ======================================== */
+
+:root {
+  /* Base Colors - Beige/Cream inspired by AI Tutor */
+  --bg-color: #F5EFE7;
+  --surface-color: #FDFAF5;
+
+  /* AgentiaELE Brand Colors - NARANJA */
+  --primary-color: #ff6600;
+  --primary-light: #ff7918;
+  --primary-dark: #e66b15;
+  --primary-pastel: #ffd5b6;
+
+  /* Text Colors */
+  --text-color: #2c2c2c;
+  --text-secondary: #6e6e73;
+  --text-light: #9baacf;
+  --text-placeholder: #9e9ea7;
+
+  /* Transparencias de Naranja (para bordes, fondos, etc) */
+  --primary-alpha-08: rgba(255, 121, 24, 0.08);
+  --primary-alpha-10: rgba(255, 121, 24, 0.1);
+  --primary-alpha-15: rgba(255, 121, 24, 0.15);
+  --primary-alpha-20: rgba(255, 121, 24, 0.2);
+  --primary-alpha-30: rgba(255, 121, 24, 0.3);
+  --primary-alpha-40: rgba(255, 121, 24, 0.4);
+
+  /* Transparencias de Blanco (para fondos glassmorphism) */
+  --white-alpha-40: rgba(255, 255, 255, 0.4);
+  --white-alpha-60: rgba(255, 255, 255, 0.6);
+  --white-alpha-80: rgba(255, 255, 255, 0.8);
+  --white-alpha-95: rgba(255, 255, 255, 0.95);
+  --white-alpha-98: rgba(255, 255, 255, 0.98);
+
+  /* Fondo Pastel Naranja */
+  --primary-pastel-bg: rgba(255, 213, 182, 0.3);
+
+  /* Layout */
+  --sidebar-width: 280px;
+
+  /* Typography Fonts */
+  --font-headings: 'Dosis', sans-serif;
+  --font-body: 'Inconsolata', monospace;
+
+  /* Typography */
+  font-family: var(--font-body);
+  line-height: 1.6;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: linear-gradient(135deg,
+    #EEEFF1 0%,
+    #F1F2F4 12%,
+    #F4F5F7 24%,
+    #F6F7F9 36%,
+    #F8F9FB 48%,
+    #FAFBFC 60%,
+    #FCFCFD 72%,
+    #FDFDFB 84%,
+    #FDFAF5 100%);
+  background-attachment: fixed;
+  color: var(--text-color);
+  font-family: var(--font-body);
+}
+
+/* App Container */
+.app {
+  min-height: 100vh;
+  background: var(--bg-color);
+}
+
+/* Links */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-headings);
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+/* Buttons y CTAs usan Dosis */
+button {
+  font-family: var(--font-headings);
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Labels globales - Tamaño 11pt (15px) y negrita */
+label {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-pastel);
+  border-radius: 24px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+/* ========================================
+   COMPONENTES GLOBALES
+   ======================================== */
+
+/* Botón de cierre minimalista circular */
+.btn-close-circular {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  border: 1px solid var(--primary-dark) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  color: var(--primary-dark) !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-close-circular:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary-light) !important;
+  color: white !important;
+}
+
+/* Botón de cierre compacto (variante pequeña) */
+.btn-close-compact {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  border: 1px solid var(--primary-dark) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  color: var(--primary-dark) !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-close-compact:hover {
+  background: var(--primary-light) !important;
+  border-color: var(--primary-light) !important;
+  color: white !important;
+}
+
+/* Contenedor/Card con fondo degradado suave (ventanas emergentes) */
+.card-gradient-bg {
+  background: #FFFFFF !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Título de sección (siempre en mayúsculas) */
+.section-title {
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin: 0 0 4px 0 !important;
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+}
+
+/* Botón primario (submit, guardar, crear, etc.) */
+.btn-primary {
+  padding: 12px 20px !important;
+  border-radius: 24px !important;
+  background: #2c2c2c !important;
+  border: none !important;
+  color: white !important;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+  background: #1a1a1a !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.3) !important;
+}
+
+/* Botón secundario (cancelar, cerrar, etc.) */
+.btn-secondary {
+  padding: 12px 20px !important;
+  border-radius: 24px !important;
+  background: #f5f5f5 !important;
+  border: none !important;
+  color: #2c2c2c !important;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ========================================
+   MODALES GLOBALES
+   ======================================== */
+
+/* Overlay del modal - Fondo oscuro */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10000 !important;
+  padding: 20px !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Contenedor principal del modal */
+.modal-content {
+  background: linear-gradient(135deg,
+    #FDFDFB 0%,
+    #FCFCFD 20%,
+    #FAFBFC 40%,
+    #F8F9FB 60%,
+    #F6F7F9 80%,
+    #F5F6F8 100%) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 121, 24, 0.1) !important;
+  width: 85vw !important;
+  max-width: 1500px !important;
+  min-width: 1200px !important;
+  height: auto !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+  animation: modalSlideIn 0.3s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Animación de entrada del modal */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive del modal */
+@media (max-width: 1200px) {
+  .modal-content {
+    width: 90vw !important;
+    min-width: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95vw !important;
+    max-height: 95vh !important;
+  }
+}
+
+/* ========================================
+   COMPONENTES DE BÚSQUEDA GLOBALES
+   ======================================== */
+
+/* Search Container */
+.search-container {
+  margin-bottom: 20px;
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 12px 16px !important;
+  background: #ffffff !important;
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 12px !important;
+  margin-bottom: 12px !important;
+  transition: all 0.3s ease !important;
+}
+
+.search-bar:focus-within {
+  border-color: #8C430D !important;
+  box-shadow: 0 0 0 3px rgba(140, 67, 13, 0.1) !important;
+}
+
+.search-bar svg {
+  color: #8C430D !important;
+  flex-shrink: 0 !important;
+}
+
+.search-input {
+  flex: 1 !important;
+  border: none !important;
+  outline: none !important;
+  font-family: var(--font-body) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: var(--text-color) !important;
+  background: transparent !important;
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.7 !important;
+}
+
+/* Search Filters */
+.search-filters {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.filter-chip {
+  padding: 6px 16px !important;
+  background: #ffffff !important;
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 20px !important;
+  font-family: var(--font-headings) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+}
+
+.filter-chip:hover {
+  background: #f5f5f5 !important;
+  border-color: #bdbdbd !important;
+}
+
+.filter-chip.active {
+  background: #8C430D !important;
+  border-color: #8C430D !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.filter-chip.active:hover {
+  background: #6D3409 !important;
+  border-color: #6D3409 !important;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --surface-color: #1a1a1a;
+    --text-color: #f5f5f5;
+    --text-secondary: #a1a1a6;
+    --text-light: #6e6e73;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a;
+  }
+}

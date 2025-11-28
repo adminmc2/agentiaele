@@ -1,0 +1,51 @@
+/* ========================================
+   MAIN LAYOUT STYLES - Header Top Layout
+   ======================================== */
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.content-area {
+  margin-top: 80px;
+  flex: 1;
+  padding: 40px 40px;
+  height: calc(100vh - 80px);
+  background: transparent;
+  overflow: hidden;
+  position: relative;
+}
+
+.content-area::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(238, 239, 241, 0.15) 0%,
+    rgba(241, 242, 244, 0.12) 20%,
+    rgba(244, 245, 247, 0.1) 40%,
+    rgba(255, 200, 150, 0.05) 60%,
+    rgba(255, 165, 89, 0.08) 80%,
+    rgba(255, 121, 24, 0.1) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-area {
+    margin-top: 70px;
+    padding: 24px 20px;
+    min-height: calc(100vh - 70px);
+  }
+
+  .content-area::before {
+    top: 0;
+  }
+}

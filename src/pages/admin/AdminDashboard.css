@@ -1,0 +1,238 @@
+/* ========================================
+   ESTILOS DEL DASHBOARD DE SUPERADMIN
+   ======================================== */
+
+.admin-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Header */
+.dashboard-header {
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.dashboard-header p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.75rem 0;
+  opacity: 0.9;
+}
+
+.stat-value {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-description {
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 3rem;
+}
+
+.quick-actions h2 {
+  font-size: 1.75rem;
+  color: #1f2937;
+  margin: 0 0 1.5rem 0;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.action-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.action-card:hover {
+  border-color: #667eea;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.15);
+}
+
+.action-card.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
+  color: white;
+}
+
+.action-card.primary:hover {
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.action-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.action-card h3 {
+  font-size: 1.1rem;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.action-card.primary h3,
+.action-card.primary p {
+  color: white;
+}
+
+.action-card p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Recent Section */
+.recent-section {
+  margin-bottom: 2rem;
+}
+
+.recent-section h2 {
+  font-size: 1.75rem;
+  color: #1f2937;
+  margin: 0 0 1.5rem 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.info-card h4 {
+  font-size: 1.1rem;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #667eea;
+}
+
+.info-card p {
+  font-size: 0.95rem;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.info-card strong {
+  color: #667eea;
+}
+
+.info-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+
+.info-card ul li {
+  font-size: 0.9rem;
+  color: #4b5563;
+  padding: 0.35rem 0;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.info-card ul li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.error {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .stats-grid,
+  .actions-grid,
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+  }
+}
