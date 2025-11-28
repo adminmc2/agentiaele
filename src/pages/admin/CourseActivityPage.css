@@ -1,0 +1,298 @@
+/* ========================================
+   PÁGINA DE GESTIÓN DE ACTIVIDADES DEL CURSO - MODO 4
+   ======================================== */
+
+.course-activity-page {
+  width: 100%;
+  height: calc(100vh - 120px);
+  padding: 2rem;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header con navegación */
+.page-header-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+/* Botón de volver */
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 24px;
+  background: #2c2c2c;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  font-family: var(--font-headings);
+  font-size: 15px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.btn-back:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.3);
+}
+
+.btn-back svg {
+  flex-shrink: 0;
+}
+
+/* Información del curso en header */
+.course-info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.course-title-main {
+  font-family: var(--font-headings);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.course-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.course-code-display,
+.course-company,
+.course-level-badge {
+  padding: 8px 18px;
+  background: var(--primary-pastel-bg);
+  border-radius: 20px;
+  font-family: var(--font-headings);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  box-shadow: 0 2px 8px rgba(255, 213, 182, 0.4);
+  margin: 0;
+}
+
+/* Contenedor de actividades con scroll */
+.activities-container {
+  width: 100%;
+  flex: 1;
+  border: 1px solid rgba(255, 121, 24, 0.1);
+  border-radius: 24px;
+  overflow: hidden;
+  background: transparent;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.activities-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 calc(2rem - 12px) calc(2rem - 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header del contenedor con botón */
+.container-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: calc(2rem - 12px);
+  padding-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.add-activity-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 24px;
+  background: #2c2c2c;
+  border: none;
+  color: white;
+  font-family: var(--font-headings);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-activity-btn:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.3);
+}
+
+.add-activity-btn svg {
+  flex-shrink: 0;
+}
+
+/* Lista de actividades */
+.activities-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Tarjeta de actividad */
+.activity-card {
+  background: #FFFFFF;
+  border: 2px solid #ff7918;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.activity-card:hover {
+  box-shadow: 0 4px 16px rgba(255, 121, 24, 0.2);
+  transform: translateY(-2px);
+  border-color: #ff6600;
+}
+
+/* Información principal - UNIDAD, SECCIÓN, ACTIVIDAD */
+.activity-main-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.activity-unit-header,
+.activity-section-header,
+.activity-number-header {
+  font-family: var(--font-headings);
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c2c2c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* Información secundaria - Nombre del agente y acción */
+.activity-secondary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 121, 24, 0.2) !important;
+}
+
+.activity-card:active .activity-secondary-info {
+  border-top: 1px solid rgba(255, 121, 24, 0.2) !important;
+}
+
+.activity-agent-name,
+.activity-action-name {
+  font-family: var(--font-headings);
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c2c2c;
+  background: var(--primary-pastel-bg);
+  padding: 8px 16px;
+  border-radius: 50px;
+  margin: 0;
+  width: fit-content;
+}
+
+/* Modal header */
+.modal-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Modal body con scroll */
+.modal-body-scrollable {
+  max-height: calc(90vh - 80px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* Error state */
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.page-error h2 {
+  font-family: var(--font-headings);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .course-activity-page {
+    padding: 1.5rem;
+  }
+
+  .page-header-nav {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .course-title-main {
+    font-size: 28px;
+  }
+
+  .course-code-display,
+  .course-company,
+  .course-level-badge {
+    font-size: 14px;
+    padding: 6px 14px;
+  }
+
+  .activities-container {
+    height: calc(100vh - 250px);
+  }
+
+  .activities-scrollable-content {
+    padding: calc(1.5rem - 12px);
+  }
+
+  .activities-list {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-back,
+  .add-activity-btn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .container-header {
+    padding: calc(1.5rem - 12px);
+    padding-bottom: 1rem;
+  }
+}

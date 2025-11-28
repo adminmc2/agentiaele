@@ -1,0 +1,717 @@
+/* Material Design - Activity Form */
+
+.activity-form {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+}
+
+/* Layout Structure */
+.activity-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.form-full-width {
+  width: 100%;
+}
+
+.form-bottom-section {
+  width: 100%;
+}
+
+/* Material Cards */
+.form-section {
+  background: #ffffff;
+  border-radius: 24px;
+  /* Updated to 24px for consistency */
+  padding: 24px;
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  /* Elevation 1 */
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-section:hover {
+  box-shadow:
+    0 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0 3px 4px 0 rgba(0, 0, 0, 0.14),
+    0 1px 8px 0 rgba(0, 0, 0, 0.12);
+  /* Elevation 2 */
+}
+
+.form-section.full-height {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Form Fields */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Form row optimizado - Sección 1: Identificación */
+.form-section .form-row.section-1-row {
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+}
+
+/* Form row optimizado - Sección 2: Estructura */
+.form-section .form-row.section-2-row {
+  grid-template-columns: 120px 1fr 1fr 120px;
+  gap: 16px;
+}
+
+.form-field {
+  margin-bottom: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  background: var(--primary-alpha-08);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+/* Inputs con estilo de "Añadir curso" */
+input[type="text"]:not(.input-chat-name),
+input[type="number"],
+select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 16px;
+  background: var(--primary-pastel-bg) !important;
+  border: 1px solid var(--primary-alpha-30) !important;
+  border-radius: 50px !important;
+  font-family: var(--font-headings);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Input de texto para nombre del chat - estilos base sin border-radius 50px */
+input[type="text"].input-chat-name {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 16px;
+  background: var(--primary-pastel-bg) !important;
+  border: 1px solid var(--primary-alpha-30) !important;
+  border-radius: 24px !important;
+  font-family: var(--font-headings);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Input específico para Nombre del chat - border-radius menor */
+.form-field input[type="text"].input-chat-name,
+input.input-chat-name[type="text"] {
+  border-radius: 24px !important;
+  max-width: 100% !important;
+}
+
+.form-field input[type="text"].input-chat-name:focus,
+input.input-chat-name[type="text"]:focus {
+  border-radius: 24px !important;
+}
+
+/* Textareas con estilo de "Añadir curso" */
+textarea {
+  width: 100%;
+  max-width: 100%;
+  height: 120px; /* Altura fija uniforme para textareas normales */
+  padding: 12px 16px;
+  background: var(--primary-pastel-bg) !important;
+  border: 1px solid var(--primary-alpha-30) !important;
+  border-radius: 24px !important;
+  font-family: var(--font-headings);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  min-width: 0;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+/* Textarea específico para instrucciones */
+.textarea-instructions {
+  height: 120px;
+}
+
+/* Textarea para texto de actividad - expandido para alinear con sección 2 */
+.textarea-activity-text {
+  height: 280px;
+}
+
+/* Textarea para el campo Función */
+.textarea-function {
+  min-height: 80px;
+  resize: vertical;
+  font-family: var(--font-body);
+}
+
+/* Campo de texto de actividad que se expande */
+.activity-text-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Ocupa todo el espacio disponible restante */
+}
+
+/* El textarea dentro del activity-text-field también debe crecer */
+.activity-text-field textarea {
+  flex: 1;
+  height: auto; /* Permite que flex controle la altura */
+  min-height: 200px; /* Altura mínima */
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-alpha-40) !important;
+  background: var(--white-alpha-80) !important;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder {
+  color: var(--text-placeholder);
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-alpha-40) !important;
+  background: var(--white-alpha-80) !important;
+}
+
+/* Select specific */
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 10px auto;
+  font-family: 'Inconsolata', monospace !important;
+}
+
+/* Select options - maintain consistent typography */
+select option {
+  font-family: 'Inconsolata', monospace !important;
+  font-size: 1rem !important;
+  color: var(--text-color);
+  background-color: #ffffff;
+  padding: 8px;
+  font-weight: 400;
+}
+
+/* Content Blocks Container */
+.content-blocks-container {
+  margin-top: 1.5rem;
+}
+
+/* JSON Editor / Prompt Editor */
+.json-textarea {
+  font-family: 'Inconsolata', monospace;
+  background: var(--primary-pastel-bg) !important;
+  border: 1px solid var(--primary-alpha-30) !important;
+  border-radius: 24px !important;
+  color: var(--text-color);
+  padding: 16px;
+  height: 400px;
+  min-height: 400px;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.json-textarea:focus {
+  outline: none;
+  border-color: var(--primary-alpha-40) !important;
+  background: var(--white-alpha-80) !important;
+}
+
+/* JSON Read-only (Vista previa) */
+.json-readonly {
+  background-color: #f7fafc !important;
+  color: #2d3748 !important;
+  border: 2px solid #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.9;
+}
+
+.json-readonly:focus {
+  background-color: #f7fafc !important;
+  border-color: #cbd5e0;
+  box-shadow: none;
+}
+
+.json-example {
+  margin-top: 16px;
+}
+
+.json-example summary {
+  cursor: pointer;
+  color: var(--primary-color);
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  user-select: none;
+}
+
+.json-example pre {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  border: 1px solid #e0e0e0;
+}
+
+/* Agent Search Container */
+.agent-search-container {
+  margin-bottom: 20px;
+}
+
+/* Agent Search Bar */
+.agent-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.agent-search-bar:focus-within {
+  border-color: #8C430D;
+  box-shadow: 0 0 0 3px rgba(140, 67, 13, 0.1);
+}
+
+.agent-search-bar svg {
+  color: #8C430D;
+  flex-shrink: 0;
+}
+
+.agent-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  background: transparent;
+}
+
+.agent-search-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Search Filters */
+.agent-search-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 6px 16px;
+  background: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  font-family: var(--font-headings);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.filter-chip:hover {
+  background: #f5f5f5;
+  border-color: #bdbdbd;
+}
+
+.filter-chip.active {
+  background: #8C430D;
+  border-color: #8C430D;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.filter-chip.active:hover {
+  background: #6D3409;
+  border-color: #6D3409;
+}
+
+/* Agent Toggles - Material Chips/Cards */
+.agents-grid {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 14px !important;
+  width: 100% !important;
+}
+
+.agent-checkbox {
+  display: block !important;
+  cursor: pointer;
+  position: relative;
+  width: 100% !important;
+  min-height: 240px !important;
+  height: auto !important;
+}
+
+.agent-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.agent-info {
+  padding: 16px 12px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 3px solid #e0e0e0;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: 10px;
+  min-height: 100%;
+}
+
+/* Unchecked State */
+.agent-checkbox input:not(:checked)~.agent-info:hover {
+  background-color: #f9f9f9;
+  border-color: #bdbdbd;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Checked State */
+.agent-checkbox input:checked~.agent-info {
+  background-color: rgba(140, 67, 13, 0.06);
+  border-color: #8C430D;
+  box-shadow: 0 0 0 3px rgba(140, 67, 13, 0.2);
+}
+
+.agent-info strong {
+  color: var(--text-color) !important;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  display: block;
+  line-height: 1.2;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.agent-checkbox input:checked~.agent-info strong {
+  color: #8C430D;
+}
+
+.agent-icon {
+  width: 110px;
+  height: 110px;
+  min-height: 110px;
+  max-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 16px;
+  padding: 0;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.agent-checkbox input:checked~.agent-info .agent-icon {
+  background: transparent;
+  transform: scale(1.05);
+}
+
+.agent-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.25));
+  display: block;
+  margin: 0 auto;
+}
+
+
+.agent-info span {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-weight: 600;
+  text-align: center;
+  display: block;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Actions */
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+button {
+  padding: 0 24px;
+  height: 42px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cancel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px !important;
+  border-radius: 50px !important;
+  background: #f5f5f5 !important;
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2c2c2c !important;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0 !important;
+  border-radius: 50px !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px !important;
+  border-radius: 50px !important;
+  background: #2c2c2c !important;
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white !important;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.btn-submit:hover {
+  background: #1a1a1a !important;
+  border-radius: 50px !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.3);
+}
+
+.btn-submit:disabled {
+  background-color: #e0e0e0 !important;
+  border-radius: 50px !important;
+  color: #9e9e9e !important;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.help-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-color);
+  margin-bottom: 16px;
+  padding: 6px 12px;
+  background: var(--primary-alpha-08);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+/* Field Insertion Buttons - Newsletter Style */
+.available-fields {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.fields-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  padding: 6px 12px;
+  background: var(--primary-alpha-08);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.fields-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.field-insert-btn {
+  padding: 0.5rem 1rem !important;
+  background: #8C430D !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 50px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.25px !important;
+  text-transform: none !important;
+  height: auto !important;
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.field-insert-btn:hover {
+  background: #6D3409 !important;
+  border-radius: 50px !important;
+  transform: translateY(-1px);
+  box-shadow:
+    0 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0 3px 4px 0 rgba(0, 0, 0, 0.14),
+    0 1px 8px 0 rgba(0, 0, 0, 0.12);
+}
+
+.field-insert-btn:active {
+  border-radius: 50px !important;
+  transform: translateY(0);
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .fields-buttons {
+    gap: 0.375rem;
+  }
+
+  .field-insert-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}

@@ -1,0 +1,450 @@
+/* ========================================
+   HEADER - BARRA SUPERIOR HORIZONTAL
+   Estilo minimalista beige/crema
+   ======================================== */
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 900;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  height: 100%;
+  padding: 0 32px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* ========================================
+   LOGO SECTION
+   ======================================== */
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.logo-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-family: 'Dosis', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #2c2c2c;
+  margin: 0;
+  line-height: 1;
+}
+
+.logo-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 121, 24, 0.3);
+  margin: 0 12px;
+}
+
+.logo-subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6e6e73;
+  line-height: 1.3;
+}
+
+/* ========================================
+   NAVIGATION
+   ======================================== */
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 6px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 121, 24, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  width: fit-content;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  color: #4a4a4a;
+  font-family: 'Dosis', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  background: rgba(255, 121, 24, 0.1);
+  color: #2c2c2c;
+}
+
+.nav-link.active {
+  background: #ffd5b6;
+  color: #2c2c2c;
+  font-size: 17px;
+  box-shadow: 0 2px 8px rgba(255, 213, 182, 0.25);
+}
+
+.nav-link .nav-icon {
+  color: #ff7918;
+  stroke-width: 2;
+  transition: color 0.3s ease;
+}
+
+.nav-link.active .nav-icon {
+  color: #2c2c2c;
+}
+
+.nav-text {
+  font-weight: 600;
+}
+
+/* ========================================
+   HEADER ACTIONS
+   ======================================== */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 121, 24, 0.2);
+  border-radius: 50%;
+  color: #2c2c2c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.action-btn:hover {
+  background: rgba(255, 121, 24, 0.08);
+  border-color: rgba(255, 121, 24, 0.4);
+  color: #ff7918;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  background: #ff7918;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Dosis', sans-serif;
+}
+
+/* ========================================
+   SELECTOR DE ROL
+   ======================================== */
+
+.role-selector-container {
+  position: relative;
+}
+
+.role-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 121, 24, 0.2);
+  border-radius: 50px;
+  font-family: 'Dosis', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c2c2c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-selector:hover {
+  background: rgba(255, 121, 24, 0.08);
+  border-color: rgba(255, 121, 24, 0.4);
+}
+
+.role-selector svg {
+  color: #ff7918;
+  flex-shrink: 0;
+}
+
+.role-label {
+  font-family: 'Dosis', sans-serif;
+  white-space: nowrap;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+  color: #6e6e73;
+  flex-shrink: 0;
+}
+
+.chevron.rotate {
+  transform: rotate(180deg);
+}
+
+/* ========================================
+   MENÚ DE USUARIO
+   ======================================== */
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 121, 24, 0.2);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-menu-button:hover {
+  background: rgba(255, 121, 24, 0.08);
+  border-color: rgba(255, 121, 24, 0.4);
+}
+
+.user-icon {
+  color: #ff7918;
+  flex-shrink: 0;
+}
+
+.user-info-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.user-name-header {
+  font-family: 'Dosis', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2c2c2c;
+  line-height: 1;
+}
+
+.user-role-header {
+  font-family: 'Inconsolata', monospace;
+  font-size: 12px;
+  color: #6e6e73;
+  line-height: 1;
+}
+
+/* ========================================
+   DROPDOWN MENUS
+   ======================================== */
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 121, 24, 0.15);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  animation: fadeIn 0.2s ease;
+  z-index: 1001;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.role-dropdown {
+  min-width: 150px;
+}
+
+.user-dropdown {
+  min-width: 220px;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  font-family: 'Dosis', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c2c2c;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 121, 24, 0.1);
+}
+
+.dropdown-item.active {
+  background: rgba(255, 121, 24, 0.15);
+  color: #ff7918;
+  font-weight: 700;
+}
+
+.dropdown-item svg {
+  color: #2c2c2c;
+  flex-shrink: 0;
+}
+
+.dropdown-item.logout {
+  color: #dc2626;
+}
+
+.dropdown-item.logout svg {
+  color: #dc2626;
+}
+
+.dropdown-item.logout:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 121, 24, 0.15);
+  margin: 8px 0;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .header-nav {
+    gap: 4px;
+  }
+
+  .nav-link {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .user-info-header {
+    display: none;
+  }
+
+  .user-menu-button {
+    padding: 8px;
+    border-radius: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    height: 70px;
+  }
+
+  .header-content {
+    padding: 0 20px;
+    gap: 16px;
+  }
+
+  .logo-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo-title {
+    font-size: 18px;
+  }
+
+  .header-nav {
+    display: none;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .role-selector {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .role-label {
+    display: none;
+  }
+
+  .dropdown-menu {
+    min-width: 180px;
+  }
+
+  .user-dropdown {
+    min-width: 200px;
+  }
+}

@@ -1,0 +1,499 @@
+/* ========================================
+   LOGIN PAGE - Página de inicio de sesión
+   ======================================== */
+
+.login-page {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 45% 55%;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* ========================================
+   COLUMNA IZQUIERDA - FORMULARIO
+   ======================================== */
+
+.login-left {
+  padding: 3rem 5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+/* Logo */
+.login-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  background: transparent;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.login-logo {
+  height: 90px;
+  width: auto;
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.15));
+  transition: all 0.3s ease;
+}
+
+.login-logo:hover {
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.25));
+  transform: translateY(-2px);
+}
+
+.logo-text {
+  margin-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-title {
+  font-family: var(--font-headings);
+  font-size: 42px;
+  font-weight: 800;
+  color: #2c2c2c;
+  margin: 0;
+  letter-spacing: -1px;
+  transition: all 0.3s ease;
+}
+
+/* Información del equipo */
+.login-team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+  width: 100%;
+  max-width: 450px;
+}
+
+.team-title {
+  font-family: var(--font-headings);
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.team-description {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Contenedor del formulario */
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 450px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Error message */
+.login-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  border-left: 4px solid #c62828;
+}
+
+/* Form groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-family: var(--font-headings);
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  color: #2c2c2c;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #ff7918;
+  box-shadow: 0 0 0 3px rgba(255, 121, 24, 0.1);
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+/* Form options - Remember me y Forgot password */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -0.5rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2c2c;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #ff7918;
+}
+
+.forgot-password {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: #ff7918;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.forgot-password:hover {
+  color: #e66b15;
+  text-decoration: underline;
+}
+
+/* Botón de login */
+.btn-login {
+  padding: 14px 24px;
+  background: #2c2c2c;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-headings);
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-login:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.3);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   COLUMNA DERECHA - ANIMACIÓN INTERACTIVA
+   ======================================== */
+
+.login-right {
+  background: linear-gradient(180deg,
+    #2d3e50 0%,        /* Azul-gris oscuro (casi negro) arriba */
+    #3d4f61 25%,       /* Azul-gris medio-oscuro */
+    #4a5968 50%,       /* Azul-gris medio */
+    #5d6570 70%,       /* Gris medio */
+    #696865 85%,       /* Gris neutro */
+    #746d68 93%,       /* Gris con ligero toque cálido */
+    #7d7269 97%,       /* Gris-marrón muy sutil */
+    #85766a 100%       /* Toque muy leve naranja-gris (casi imperceptible) */
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  margin: 1cm;
+  border-radius: 12px;
+}
+
+/* Stage para las criaturas animadas */
+.stage {
+  background: rgba(255, 255, 255, 0.05);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.group {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dragger,
+.creature {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+}
+
+.dragger {
+  border-radius: 50%;
+  pointer-events: all;
+  cursor: grab;
+}
+
+.dragger:active {
+  cursor: grabbing;
+}
+
+.body {
+  position: absolute;
+  background: var(--color);
+  width: var(--size);
+  height: var(--size);
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.leg {
+  position: absolute;
+  width: 20px;
+  height: var(--leg);
+  border: 10px solid rgba(255, 255, 255, 0.8);
+  border-style: none solid solid none;
+  right: calc(var(--size) * 0.5);
+  top: calc(var(--size) * 0.5 - var(--leg) * 0.5);
+  transform-origin: 100% calc(var(--size) * -0.5);
+}
+
+.snooze-particle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  color: white;
+  font-size: 20px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.ground-particle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+}
+
+/* Texto grande centrado con letras blancas */
+.press-text {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  max-width: 95%;
+  width: 100%;
+}
+
+.press-line-1 {
+  font-family: var(--font-headings);
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.8rem 0;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.press-line-2 {
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.4;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Texto informativo para las bolitas que se pueden despertar */
+.awake-creatures-hint {
+  position: absolute;
+  bottom: 60px;
+  left: 40px;
+  text-align: left;
+  z-index: 15;
+  max-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Texto informativo sobre la bolita dormida */
+.sleeping-creature-hint {
+  position: absolute;
+  bottom: 60px;
+  right: 140px;
+  text-align: right;
+  z-index: 15;
+  max-width: 150px;
+}
+
+.hint-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffff !important;
+  margin: 0;
+  line-height: 1.4;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.hint-arrow {
+  font-size: 24px;
+  margin-left: 4px;
+  display: inline-block;
+  color: #ffffff !important;
+  animation: pointDown 2s ease-in-out infinite;
+}
+
+.hint-arrow-down {
+  font-size: 24px;
+  margin-left: 4px;
+  display: inline-block;
+  color: #ffffff !important;
+  animation: pointDownRight 2s ease-in-out infinite;
+}
+
+@keyframes pointDown {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+@keyframes pointDownRight {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(5px, 5px);
+  }
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 1200px) {
+  .login-page {
+    grid-template-columns: 50% 50%;
+  }
+
+  .login-left {
+    padding: 2.5rem 3rem;
+  }
+
+  .team-title {
+    font-size: 28px;
+  }
+
+  .login-right {
+    padding: 2rem;
+  }
+
+  .quote {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 968px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-right {
+    display: none;
+  }
+
+  .login-left {
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .login-form-container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-left {
+    padding: 1.5rem;
+  }
+
+  .team-title {
+    font-size: 24px;
+  }
+
+  .team-description {
+    font-size: 14px;
+  }
+
+  .login-logo {
+    height: 50px;
+  }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

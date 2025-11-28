@@ -1,0 +1,779 @@
+umopomldo sd/* ========================================
+   ESTILOS DEL GESTOR DE CURSOS
+   ======================================== */
+
+/* ========================================
+   SISTEMA DE ESTILOS BASE
+   ======================================== */
+
+/* Los botones .btn-primary y .btn-secondary ahora están en index.css (global) */
+
+/* Input de texto */
+.input-text {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--primary-pastel-bg) !important;
+  border: 1px solid var(--primary-alpha-30) !important;
+  border-radius: 50px !important;
+  font-family: var(--font-headings);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.input-text:focus {
+  outline: none;
+  border-color: var(--primary-alpha-40);
+  background: var(--white-alpha-80);
+}
+
+.input-text::placeholder {
+  color: var(--text-placeholder);
+}
+
+/* Select dropdown */
+.select-dropdown {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--primary-pastel-bg) !important;
+  border: 1px solid var(--primary-alpha-30) !important;
+  border-radius: 50px !important;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: var(--text-color) !important;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.select-dropdown:focus {
+  outline: none;
+  border-color: var(--primary-alpha-40);
+  background: var(--white-alpha-80);
+}
+
+.select-dropdown option {
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+}
+
+/* Label de campos - ACTUALIZADO */
+label.field-label-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  background: var(--primary-alpha-08);
+  border-radius: 20px;
+  width: fit-content;
+}
+
+label.field-label-text span {
+  font-family: var(--font-headings) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--text-color);
+}
+
+label.field-label-text svg {
+  color: var(--primary-dark);
+  flex-shrink: 0;
+}
+
+/* Display de valor (números, totales) */
+.value-display {
+  padding: 8px 12px;
+  background: var(--white-alpha-95);
+  border: 1px solid var(--primary-alpha-30);
+  border-radius: 16px;
+  font-family: var(--font-headings);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-light);
+  text-align: center;
+}
+
+/* Container de total */
+.total-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--primary-pastel-bg);
+  border: 1px solid var(--primary-alpha-20);
+  border-radius: 50px;
+}
+
+.total-container-label {
+  font-family: var(--font-headings);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.total-container-value {
+  font-family: var(--font-headings);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-light);
+}
+
+/* Botón de upload */
+.btn-upload {
+  padding: 10px 16px;
+  background: var(--white-alpha-60);
+  border: 1px dashed var(--primary-alpha-30);
+  border-radius: 50px;
+  font-family: var(--font-headings);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-light);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-upload:hover {
+  background: var(--primary-alpha-08);
+  border-color: var(--primary-alpha-40);
+}
+
+/* ========================================
+   FIN SISTEMA DE ESTILOS BASE
+   ======================================== */
+
+.activities-manager {
+  width: 100%;
+  height: calc(100vh - 120px); /* Altura fija: viewport menos espacio para header */
+  position: relative;
+  padding: 2rem;
+}
+
+/* Contenedor scrollable de cursos */
+.courses-container {
+  height: 100%; /* Ocupa toda la altura del padre */
+  border: 1px solid rgba(255, 121, 24, 0.1);
+  border-radius: 24px;
+  overflow: hidden; /* Oculta overflow para respetar border-radius */
+  background: transparent;
+  padding: 12px; /* Padding para separar el scroll del borde */
+}
+
+/* Contenedor interno con scroll */
+.courses-scrollable-content {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: calc(2rem - 12px); /* Ajusta el padding restando el del padre */
+}
+
+/* Header del contenedor */
+.container-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
+.add-course-btn-new {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 24px;
+  background: #2c2c2c;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  font-family: 'Dosis', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.add-course-btn-new:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.3);
+}
+
+.add-course-btn-new svg {
+  flex-shrink: 0;
+}
+
+.add-course-btn-new span {
+  white-space: nowrap;
+}
+
+.page-title {
+  font-family: 'Dosis', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin-bottom: 3rem;
+  text-align: left;
+}
+
+/* Header de la página */
+.page-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
+.add-course-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  color: #2c2c2c;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Dosis', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-course-btn:hover {
+  background: rgba(255, 121, 24, 0.08);
+  border-color: rgba(255, 121, 24, 0.4);
+}
+
+.add-course-btn svg {
+  color: #ff7918;
+  flex-shrink: 0;
+}
+
+/* Grid de Cursos */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+  gap: 2.5rem;
+  width: 100%;
+}
+
+/* Tarjeta de Curso */
+.course-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Header de la tarjeta */
+.card-header {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.menu-btn,
+.expand-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #2c2c2c;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.menu-btn:hover,
+.expand-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+/* FILA 1: Imagen + Contenido */
+.card-row-1 {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  padding: 60px 20px 16px 20px;
+}
+
+/* Imagen de portada (pequeña, izquierda) */
+.card-cover {
+  width: 140px;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+  background: #f8f9fa;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-level {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-pastel);
+  color: var(--primary-dark);
+  font-family: var(--font-headings);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 12px rgba(255, 213, 182, 0.6);
+  margin-top: 4px;
+}
+
+/* Columna derecha (Parte 1 + Parte 2) */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* PARTE 1: Título y Empresa */
+.card-info-top {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-title {
+  font-family: var(--font-headings);
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.card-company {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #8e8e93;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* PARTE 2: Estadísticas (Horas y Lecciones) */
+.card-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-value {
+  font-family: var(--font-headings);
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c2c2c;
+  line-height: 1;
+}
+
+.stat-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #8e8e93;
+  text-transform: capitalize;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* FILA 2: Progreso (full width) */
+.card-row-2 {
+  padding: 0 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* PARTE 3: Barras de Progreso */
+.progress-bars {
+  display: flex;
+  gap: 4px;
+  height: 16px;
+  align-items: flex-end;
+}
+
+.progress-bar {
+  flex: 1;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.progress-bar.filled {
+  background: var(--primary-dark);
+  height: 100%;
+}
+
+.progress-bar.empty {
+  background: #E8E8ED;
+  height: 50%;
+}
+
+/* Footer de la tarjeta */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #8e8e93;
+}
+
+.percentage {
+  font-family: var(--font-headings);
+  font-size: 22px;
+  font-weight: 700;
+  color: #2c2c2c;
+}
+
+/* ========================================
+   SIDEBAR DRAWER - MODE 3
+   ======================================== */
+
+/* Overlay oscuro del drawer */
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Sidebar deslizable desde la derecha */
+.drawer-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 65%;
+  max-width: 900px;
+  height: 100vh;
+  background: #FFFFFF;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Header del drawer */
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 121, 24, 0.15);
+  background: linear-gradient(135deg,
+    #FDFDFB 0%,
+    #FCFCFD 50%,
+    #FAFBFC 100%);
+}
+
+.drawer-header h2 {
+  font-family: var(--font-headings);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin: 0;
+}
+
+/* Subtítulo con nombre del curso */
+.drawer-subtitle {
+  padding: 1rem 2rem;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--primary-alpha-08);
+  border-bottom: 1px solid rgba(255, 121, 24, 0.1);
+}
+
+/* Contenido scrollable del drawer */
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  background: #FAFBFC;
+}
+
+/* Responsive del drawer */
+@media (max-width: 1200px) {
+  .drawer-sidebar {
+    width: 75%;
+  }
+}
+
+@media (max-width: 768px) {
+  .drawer-sidebar {
+    width: 90%;
+  }
+
+  .drawer-header {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+  }
+
+  .drawer-header h2 {
+    font-size: 22px;
+  }
+
+  .drawer-subtitle {
+    padding: 0.75rem 1.5rem;
+    font-size: 14px;
+  }
+
+  .drawer-content {
+    padding: 1.5rem;
+  }
+}
+
+/* ========================================
+   ACCORDION COMPACTO - MODE 5
+   ======================================== */
+
+/* Accordion compacto que aparece debajo de la tarjeta */
+.accordion-compact {
+  grid-column: 1 / -1; /* Span full width of grid */
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 121, 24, 0.1);
+  padding: 2rem;
+  margin-top: -8px; /* Slight overlap for visual connection */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   MODAL DE NUEVO CURSO
+   ======================================== */
+
+/* Los estilos .modal-overlay y .modal-content ahora están en index.css (global) */
+
+.modal-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 0px 16px 30px 16px;
+  border-bottom: none;
+}
+
+.modal-form {
+  padding: 8px 24px 24px 24px;
+  max-height: calc(90vh - 120px); /* Altura máxima menos header y footer */
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 8px 16px 8px; /* Margen para separar la barra del borde */
+}
+
+/* Grid de Tres Columnas */
+.form-grid-three {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* El fondo ahora hereda de .card-gradient-bg (index.css) */
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 121, 24, 0.15);
+}
+
+/* .column-title ahora usa .section-title (index.css) */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Los estilos de .field-label, .field-input, .field-select y .field-display
+   ahora heredan de las clases base */
+
+/* Total de Actividades - usa .total-container */
+.total-activities-display {
+  margin-top: 4px;
+}
+
+/* Imagen Compacta */
+.image-upload-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.image-upload-input {
+  display: none;
+}
+
+/* El botón de upload ahora hereda de .btn-upload */
+
+.image-preview-compact {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.image-preview-compact img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(255, 121, 24, 0.15);
+  border-radius: 16px;
+}
+
+.remove-btn-compact {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* Footer del Modal */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 32px 16px 32px;
+  border-top: none;
+}
+
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .form-grid-three {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .modal-form {
+    padding: 20px;
+  }
+
+  .column-title {
+    font-size: 14px;
+  }
+
+  /* Ajustes para tarjetas en móvil */
+  .card-row-1 {
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    padding: 50px 16px 12px 16px;
+  }
+
+  .card-cover {
+    width: 100px;
+    height: 140px;
+  }
+
+  .card-level {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .card-row-2 {
+    padding: 0 16px 16px 16px;
+  }
+}

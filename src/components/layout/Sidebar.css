@@ -1,0 +1,510 @@
+/* ========================================
+   SIDEBAR - DARK ROUNDED DESIGN
+   ======================================== */
+
+.sidebar {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  bottom: 20px;
+  width: 80px;
+  height: calc(100vh - 40px);
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0;
+  z-index: 100;
+  border-radius: 24px;
+  transition: width 0.3s ease, padding 0.3s ease, align-items 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar:hover {
+  width: var(--sidebar-width);
+  align-items: stretch;
+  padding: 32px 24px;
+}
+
+/* ========================================
+   LOGO SECTION
+   ======================================== */
+
+.sidebar-header {
+  margin-bottom: 40px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  justify-content: center;
+}
+
+.sidebar:hover .logo-wrapper {
+  align-items: flex-start;
+}
+
+.sidebar:hover .logo-image {
+  margin-left: 0;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.sidebar:not(:hover) .logo-image {
+  margin-left: 96px;
+}
+
+.logo-title {
+  font-family: 'Dosis', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar:hover .logo-title {
+  opacity: 1;
+}
+
+.logo-subtitle {
+  font-family: 'Inconsolata', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #9ca3af;
+  line-height: 1.3;
+  letter-spacing: 0.3px;
+  padding-left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar:hover .logo-subtitle {
+  opacity: 1;
+}
+
+.logo-subtitle strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ========================================
+   NAVIGATION MENU
+   ======================================== */
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding-right: 0;
+}
+
+/* Navigation Item - Minimalista */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px;
+  background: transparent;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar:hover .nav-item {
+  justify-content: flex-start;
+  padding: 12px 20px;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.nav-item.active .nav-label {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.sidebar:not(:hover) .nav-icon {
+  margin-left: 22px;
+}
+
+/* Nav Icon */
+.nav-icon {
+  flex-shrink: 0;
+  stroke-width: 1.5;
+  color: #ff7918;
+}
+
+/* Nav Label */
+.nav-label {
+  font-family: 'Dosis', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar:hover .nav-label {
+  opacity: 1;
+  width: auto;
+}
+
+/* ========================================
+   FOOTER - ROLE SELECTOR & USER MENU
+   ======================================== */
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ========================================
+   ROLE SELECTOR
+   ======================================== */
+
+.role-selector-sidebar {
+  position: relative;
+  width: 100%;
+}
+
+.role-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: 'Dosis', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar:hover .role-button {
+  justify-content: flex-start;
+  padding: 10px 12px;
+}
+
+.role-button:hover {
+  background: rgba(255, 121, 23, 0.1);
+  border-color: rgba(255, 121, 23, 0.3);
+}
+
+.role-icon {
+  color: #ff7918;
+  flex-shrink: 0;
+}
+
+.sidebar:not(:hover) .role-icon {
+  margin-left: 18px;
+}
+
+.role-text {
+  white-space: nowrap;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar:hover .role-text {
+  opacity: 1;
+  width: auto;
+}
+
+.chevron-icon {
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+  opacity: 0;
+  width: 0;
+}
+
+.sidebar:hover .chevron-icon {
+  opacity: 1;
+  width: auto;
+  margin-left: auto;
+}
+
+.chevron-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* Role Dropdown Menu */
+.role-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #2c2c2c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 6px;
+  z-index: 1000;
+  animation: fadeInUp 0.2s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.role-option {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Dosis', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-option:hover {
+  background: rgba(255, 121, 23, 0.1);
+  color: #ffffff;
+}
+
+.role-option.active {
+  background: rgba(255, 121, 23, 0.15);
+  color: #ff7918;
+  font-weight: 700;
+}
+
+/* ========================================
+   USER MENU
+   ======================================== */
+
+.user-menu-sidebar {
+  position: relative;
+  width: 100%;
+}
+
+.user-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar:hover .user-button {
+  justify-content: flex-start;
+  padding: 10px 12px;
+}
+
+.user-button:hover {
+  background: rgba(255, 121, 23, 0.1);
+}
+
+.sidebar:not(:hover) .user-avatar {
+  margin-left: 18px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 121, 23, 0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ff7918;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+  flex: 1;
+}
+
+.sidebar:hover .user-details {
+  opacity: 1;
+  width: auto;
+}
+
+.user-name {
+  font-family: 'Dosis', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* User Dropdown Menu */
+.user-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #2c2c2c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 6px;
+  z-index: 1000;
+  animation: fadeInUp 0.2s ease;
+}
+
+.user-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Dosis', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-menu-item:hover {
+  background: rgba(255, 121, 23, 0.1);
+  color: #ffffff;
+}
+
+.user-menu-item svg {
+  color: #ff7918;
+  flex-shrink: 0;
+}
+
+.user-menu-item.logout {
+  color: #ef4444;
+}
+
+.user-menu-item.logout svg {
+  color: #ef4444;
+}
+
+.user-menu-item.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 6px 0;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 80px;
+    padding: 20px 10px;
+  }
+
+  .sidebar-header {
+    margin-bottom: 24px;
+  }
+
+  .logo-title {
+    font-size: 20px;
+  }
+
+  .logo-subtitle {
+    display: none;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    padding: 12px 8px;
+    gap: 4px;
+  }
+
+  .nav-content {
+    align-items: center;
+  }
+
+  .nav-description {
+    display: none;
+  }
+
+  .nav-label {
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .user-details {
+    display: none;
+  }
+
+  .user-info {
+    justify-content: center;
+    padding: 8px;
+  }
+}
