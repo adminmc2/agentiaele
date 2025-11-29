@@ -38,5 +38,4 @@ dist-ssr
 *.backup
 *_backup
 .gitignore.demo-ar-libro
-README-demo-ar-libro.md
 demo-ar-libro/

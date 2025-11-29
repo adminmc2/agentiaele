@@ -1,248 +1,362 @@
-# AgentIAele - Frontend React
+# 📚 AgentiaELE - Agentes de Inteligencia Artificial para Español como Lengua Extranjera
 
-Panel de Superadministrador para gestión de contenido educativo.
+> Sistema educativo completo para aprendizaje de español como lengua extranjera (ELE) aplicado al método "Español en Marcha" nivel A1, con equipo de agentes de IA especializados y gamificación
 
-## Descripción
+[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-Privado-red.svg)]()
+[![Status](https://img.shields.io/badge/status-En%20Desarrollo-yellow.svg)]()
 
-Frontend del MVP de AgentIAele (Agentes de Inteligencia Artificial para Español Lengua Extranjera) - **MOMENTO 1: CLASE**.
+---
 
-Este panel permite a los superadministradores:
-- Gestionar actividades de clase (CRUD completo)
-- Organizar contenido por libro (EM1, EM2, EM3, EM4) y unidad (1-12)
-- Configurar agentes IA disponibles por actividad
-- Previsualizar actividades
-- Importar/exportar datos
+## 🎯 Descripción General
 
-## Stack Tecnológico
+**AgentiaELE** (Agentes de Inteligencia Artificial para Español como Lengua Extranjera) es un sistema web educativo para el aprendizaje de español como lengua extranjera, específicamente diseñado para el nivel A1 del método **"Español en Marcha"**.
 
-- **Framework**: React 18
-- **Build Tool**: Vite
+AgentiaELE integra un **equipo de 6 agentes de IA especializados** que actúan como tutores virtuales lingüísticos, proporcionando corrección gramatical, evaluación automática, traducción contextual, generación de ejemplos, explicaciones pedagógicas y tutoría personalizada.
+
+### Características Principales
+
+✅ **Equipo de Tutores IA**: 6 agentes especializados que actúan como tutores virtuales
+✅ **Sistema de Diseño Unificado**: Componentes reutilizables con paleta naranja coherente
+✅ **Gestor de Cursos**: Interfaz Material Design con formularios intuitivos
+✅ **Caché Inteligente**: Ahorro del 70-80% en costos de IA
+✅ **Doble Rol**: Usuario estudiante y Superadministrador
+✅ **Gamificación**: Badges, niveles, XP y sistema de recompensas
+✅ **Tracking Completo**: Progreso detallado y estadísticas en tiempo real
+✅ **Dashboard Admin**: Monitoreo de agentes, costos, usuarios y actividades
+✅ **Reportes Avanzados**: Exportación CSV/JSON/PDF con análisis detallado
+
+---
+
+## 📋 Versión Actual y Roadmap
+
+### **FASE 1: MVP Beta - 100 Usuarios** 🚀
+**Fecha estimada**: Noviembre 2025 (última semana)
+**Estado**: En Desarrollo
+
+#### MVP - MOMENTO 1: CLASE
+Aprendizaje guiado con IA, sin evaluación ni seguimiento de progreso. Enfoque en exploración y práctica libre.
+
+#### MVP Incluye:
+- ✅ Autenticación con Auth0/Clerk
+- ✅ Sistema de 4 agentes IA para aprendizaje:
+  - **Translator**: Traducciones contextuales
+  - **Vocabulary**: Explicaciones de palabras
+  - **Personalizer**: Ejemplos personalizados
+  - **Creative**: Historias y diálogos creativos
+- ✅ Chat único "Eliana" por actividad con múltiples agentes
+- ✅ Base de datos PostgreSQL 17 (6 tablas):
+  - user_profiles, class_activities, class_sessions
+  - user_interactions, user_achievements, ai_cache
+- ✅ Soporte multi-libro (EM1, EM2, EM3, EM4)
+- ✅ 10 tipos de actividades + 9 estructuras
+- ✅ Email consolidado por sesión (opcional)
+- ✅ Sistema dual: chat para UI + datos para ML
+
+**Costo estimado MVP**: $5-10/mes (solo DeepSeek API)
+
+---
+
+### **FASE 2: Versión Completa - 1000+ Usuarios** 🏆
+**Fecha estimada**: Diciembre 2025 - Enero 2026 (3-4 semanas)
+**Estado**: Planificado (después de validar MVP)
+
+#### Versión Completa - MOMENTO 1 + MOMENTO 2
+Añade **MOMENTO 2: REPASO** con evaluación, dificultad adaptativa y seguimiento de progreso.
+
+#### Incluye:
+- ✅ **8 agentes IA** (4 aprendizaje + 4 evaluación):
+  - MOMENTO 1: Translator, Vocabulary, Personalizer, Creative
+  - MOMENTO 2: Corrector, Evaluator, Teacher, Tutor
+- ✅ **16 tablas** en base de datos (6 MOMENTO 1 + 10 MOMENTO 2)
+- ✅ Caché inteligente con búsqueda por similitud (70-80% ahorro)
+- ✅ Sistema de roles (Usuario/Superadmin)
+- ✅ Dashboard de usuario con progreso y badges
+- ✅ Dashboard de superadmin con analytics de agentes
+- ✅ Sistema de gamificación (badges, niveles, XP)
+- ✅ Modo práctica y repaso personalizado
+- ✅ Reportes y exportación de datos
+
+**Costo estimado Producción**: $33/mes (1000 usuarios, con caché optimizado)
+
+**Ver detalles**: [CHANGELOG.md](CHANGELOG.md) | [PROYECTO-COMPLETO.md](PROYECTO-COMPLETO.md)
+
+---
+
+## 🏗️ Arquitectura
+
+```
+┌─────────────────────────────┐
+│   NETLIFY (Frontend)        │  ← React + Vite
+│   + Netlify Functions       │  ← Serverless API
+└──────────┬──────────────────┘
+           │
+┌──────────▼──────────────────┐
+│  Neon.tech PostgreSQL 15 💾 │  ← Base de Datos
+│  (GRATIS para siempre)      │  ← 512 MB RAM, 3 GB storage
+└──────────┬──────────────────┘
+           │
+┌──────────▼──────────────────┐
+│  Auth0 / Clerk 🔐           │  ← Autenticación
+│  (Free Tier)                │
+└─────────────────────────────┘
+
+           ↕
+┌──────────────────────────────────────────┐
+│    SISTEMA DE AGENTES IA (Middleware)   │
+│  ┌────────────────────────────────────┐ │
+│  │   AgentService (Orquestador) 🧠    │ │
+│  └───┬────────────────────────────────┘ │
+│      │                                   │
+│  ┌───▼──────┬──────┬──────┬──────┬────┐ │
+│  │Corrector │Eval. │Trans.│Gen.  │etc.│ │
+│  └──────────┴──────┴──────┴──────┴────┘ │
+│                                          │
+│  ┌────────────────────────────────────┐ │
+│  │  CacheService 💰 (70-80% ahorro)   │ │
+│  └────────────────────────────────────┘ │
+└──────────┬───────────────────────────────┘
+           │
+┌──────────▼──────────┐
+│   DEEPSEEK API      │  ← IA Real
+└─────────────────────┘
+
+💡 Stack 100% gratuito para siempre (MVP y producción inicial)
+```
+
+---
+
+## 🚀 Stack Tecnológico
+
+### Frontend
+- **Framework**: React 18 + Vite
 - **Routing**: React Router v6
-- **Styling**: CSS Modules
-- **Base de Datos**: Neon.tech PostgreSQL 17 (6 tablas)
-- **API**: Netlify Functions
+- **UI**: CSS Modules + Responsive Design
+- **Charts**: Chart.js + Recharts
+- **Deploy**: Netlify
 
-## Estructura del Proyecto
+### Backend
+- **Database**: Neon.tech PostgreSQL 17 (Gratis para siempre)
+  - 512 MB RAM, 3 GB storage
+  - Serverless PostgreSQL con auto-scaling
+  - **MVP**: 6 tablas (MOMENTO 1: Clase)
+  - **v1.0**: 16 tablas (+ MOMENTO 2: Repaso)
+- **Auth**: Auth0 (7,000 MAU) o Clerk (10,000 MAU)
+- **API**: Netlify Functions (serverless)
+- **Connection**: PostgreSQL client (pg) o @neondatabase/serverless
+- **Security**: JWT + SQL prepared statements
+
+### Inteligencia Artificial
+- **API**: DeepSeek (deepseek-chat)
+- **Arquitectura MVP**: 4 agentes (Translator, Vocabulary, Personalizer, Creative)
+- **Arquitectura v1.0**: 8 agentes (+ Corrector, Evaluator, Teacher, Tutor)
+- **Caché**: PostgreSQL + pg_trgm (similitud de texto)
+- **Optimización**: Cache hit rate 70-80%
+- **Chat único**: "Eliana" con múltiples agentes respondiendo
+
+---
+
+## 💰 Costos Estimados
+
+### 🎉 Stack 100% GRATUITO para siempre
+
+#### MVP y Producción Inicial (hasta ~1000 usuarios)
+| Servicio | Plan | Costo/mes |
+|----------|------|-----------|
+| **Neon.tech** | Free (512 MB, 3 GB storage) | **$0** |
+| **Auth0/Clerk** | Free (7,000-10,000 MAU) | **$0** |
+| **Netlify** | Free (100 GB bandwidth) | **$0** |
+| **DeepSeek API** | Pay-as-you-go con caché | **$5-10** |
+| **TOTAL** | - | **$5-10/mes** |
+
+✅ **Infraestructura 100% gratis**
+✅ **Solo pagas IA (y con caché, muy poco)**
+✅ **Sin límite de tiempo** (gratis para siempre)
+
+---
+
+#### Cuando escales (1000-5000 usuarios)
+| Servicio | Sin Caché | Con Caché (80%) |
+|----------|-----------|-----------------|
+| **Neon.tech Pro** | $19/mes | $19/mes |
+| **Auth0 Essentials** | $25/mes | $25/mes |
+| **Netlify** | $19/mes | $19/mes |
+| **DeepSeek API** | $42/mes | $8/mes |
+| **TOTAL** | $105/mes | **$71/mes** |
+
+---
+
+#### Opción: Migrar a Supabase cuando haya presupuesto
+| Servicio | Sin Caché | Con Caché (80%) |
+|----------|-----------|-----------------|
+| **Supabase Pro** | $25/mes | $25/mes |
+| **Netlify** | $19/mes | $19/mes |
+| **DeepSeek API** | $42/mes | $8/mes |
+| **TOTAL** | $86/mes | **$52/mes** |
+
+---
+
+### 💡 Ventaja de Neon.tech
+
+- ✅ **Gratis para siempre** (no 12 meses, PARA SIEMPRE)
+- ✅ **PostgreSQL nativo** (código portable)
+- ✅ **Serverless** (auto-scaling incluido)
+- ✅ **Backup automático** incluido
+- ✅ **Sin tarjeta de crédito** para empezar
+
+---
+
+## 📊 Documentación Técnica
+
+- **[PROYECTO-COMPLETO.md](PROYECTO-COMPLETO.md)**: Arquitectura completa con Neon.tech, base de datos, plan de implementación (incluye guía MVP)
+- **[CHANGELOG.md](CHANGELOG.md)**: Historial de versiones y cambios
+- **[EXPLICACION-AGENTES-PRINCIPIANTE.md](EXPLICACION-AGENTES-PRINCIPIANTE.md)**: Explicación detallada del sistema de agentes
+- **[ARQUITECTURA-ESCALABLE.md](ARQUITECTURA-ESCALABLE.md)**: Estrategias de escalabilidad para 10,000+ usuarios
+- **[LANGGRAPH-VS-CUSTOM.md](LANGGRAPH-VS-CUSTOM.md)**: Comparativa de arquitecturas de IA
+
+---
+
+## 👥 Roles de Usuario
+
+### 👤 **Usuario Estudiante**
+- Dashboard personal con progreso
+- Realizar actividades del nivel A1
+- Asistente de IA (traducción, corrección, ejemplos)
+- Sistema de badges y gamificación
+- Historial de respuestas y feedback
+- Modo práctica y repaso
+- Resúmenes de progreso
+
+### 👑 **Superadministrador**
+- Dashboard global con todos los usuarios
+- Monitor de agentes IA en tiempo real
+- Gestión completa de actividades
+- Configuración de agentes por actividad
+- Historial completo de interacciones IA
+- Reportes avanzados de costos y uso
+- Sistema de alertas y monitoreo
+- Gestión de badges y usuarios
+- Exportación de datos (CSV/JSON/PDF)
+
+---
+
+## 🗂️ Estructura del Proyecto
 
 ```
-agentiaele/
+demo-ar-libro/
+├── database/            # 📊 Base de datos PostgreSQL
+│   ├── schema_mvp.sql   # Schema MOMENTO 1 (6 tablas)
+│   ├── reset_database.sql
+│   └── verify_database.sql
+├── public/              # Assets estáticos
 ├── src/
-│   ├── pages/
-│   │   └── admin/              # Páginas de administración
-│   │       ├── AdminDashboard.jsx
-│   │       ├── ActivitiesManager.jsx
-│   │       └── ...
-│   ├── components/
-│   │   └── admin/              # Componentes de administración
-│   ├── services/               # Servicios API
-│   │   └── activityService.js
-│   ├── config/                 # Configuración
-│   │   └── database.js
-│   ├── utils/                  # Utilidades
-│   ├── App.jsx                 # App principal con rutas
-│   └── main.jsx                # Entry point
-├── .env.example                # Variables de entorno de ejemplo
-├── package.json
-└── vite.config.js
+│   ├── agents/          # 🧠 Sistema de agentes IA
+│   │   ├── BaseAgent.js
+│   │   ├── momento1/    # Aprendizaje guiado
+│   │   │   ├── TranslatorAgent.js
+│   │   │   ├── VocabularyAgent.js
+│   │   │   ├── PersonalizerAgent.js
+│   │   │   └── CreativeAgent.js
+│   │   ├── momento2/    # Evaluación (v1.0)
+│   │   │   ├── CorrectorAgent.js
+│   │   │   ├── EvaluatorAgent.js
+│   │   │   ├── TeacherAgent.js
+│   │   │   └── TutorAgent.js
+│   │   ├── AgentService.js
+│   │   └── CacheService.js  # 💰 Caché inteligente
+│   ├── components/      # Componentes React
+│   ├── services/        # Servicios de backend
+│   ├── pages/           # Páginas de la app
+│   ├── utils/           # Utilidades
+│   └── config/          # Configuración
+├── netlify/
+│   └── functions/       # Netlify Functions (serverless API)
+├── PROYECTO-COMPLETO.md
+├── CHANGELOG.md
+└── README.md
 ```
 
-## Instalación
+---
 
-1. **Clonar el repositorio**:
-```bash
-cd agentiaele
-```
+## 🎮 Sistema de Gamificación
 
-2. **Instalar dependencias**:
-```bash
-npm install
-```
+### Niveles
+- **Nivel 1**: Principiante (0-100 XP)
+- **Nivel 2**: Aprendiz (100-250 XP)
+- **Nivel 3**: Estudiante (250-500 XP)
+- **Nivel 4**: Intermedio (500-1000 XP)
+- **Nivel 5**: Avanzado (1000-2000 XP)
+- **Nivel 6**: Experto (2000-5000 XP)
+- **Nivel 7**: Maestro (5000+ XP)
 
-3. **Configurar variables de entorno**:
-```bash
-cp .env.example .env
-```
+### Badges
+- 🎯 **Progreso**: Primera actividad, 5 actividades, 20 actividades...
+- 🌟 **Unidad**: Completar cada unidad
+- 💯 **Achievement**: Puntuaciones perfectas, rapidez
+- 🔥 **Sociales**: Rachas de días consecutivos
+- 🧠 **Especiales**: Uso de todas las funciones de IA, graduación
 
-Edita `.env` y configura:
-- `DATABASE_URL`: Connection string de Neon.tech PostgreSQL (para Netlify Functions, sin VITE_ prefix)
-- `VITE_API_URL`: URL de tu API (en desarrollo usa `/.netlify/functions` o `/api`)
-- `VITE_DEEPSEEK_API_KEY`: API key de DeepSeek (para futuro)
+---
 
-**IMPORTANTE**: La variable `DATABASE_URL` NO lleva el prefijo `VITE_` porque se usa en Netlify Functions (backend), no en el frontend.
+## 📈 Roadmap
 
-4. **Iniciar desarrollo local con Netlify CLI**:
-```bash
-# Instalar Netlify CLI globalmente (si no lo tienes)
-npm install -g netlify-cli
+### v1.0.0 (Actual) - MVP
+- Sistema completo de agentes con caché
+- Roles usuario/superadmin
+- Gamificación básica
+- Analytics de agentes
+- Nivel A1 completo
 
-# Iniciar dev server con Netlify Functions
-netlify dev
-```
+### v2.0.0 (Futuro)
+- 🎤 Reconocimiento de voz
+- 🔊 Text-to-speech para pronunciación
+- 📱 App móvil (React Native)
+- 👥 Modo multijugador
+- 💬 Chat entre estudiantes
+- 🌐 Niveles A2, B1, B2
 
-El proyecto estará disponible en `http://localhost:8888` (con funciones backend funcionando).
+### v3.0.0 (Futuro)
+- 🤖 IA generativa de actividades
+- 📊 Análisis predictivo de aprendizaje
+- 🎯 Tests adaptativos de nivel
+- 🌍 Soporte multiidioma completo
 
-**Alternativa sin Netlify CLI**: Si solo quieres ver el frontend:
-```bash
-npm run dev
-```
-El frontend estará en `http://localhost:5173` (pero las funciones NO funcionarán)
+---
 
-## Scripts Disponibles
+## 🔒 Seguridad
 
-- `npm run dev` - Inicia servidor de desarrollo (frontend solo, puerto 5173)
-- `netlify dev` - Inicia Netlify Dev con backend functions (puerto 8888)
-- `npm run build` - Build de producción
-- `npm run preview` - Preview de build de producción
-- `npm run lint` - Ejecuta ESLint
+- ✅ JWT tokens con Auth0/Clerk
+- ✅ SQL prepared statements (prevención de inyección SQL)
+- ✅ Variables de entorno para API keys y credenciales
+- ✅ HTTPS obligatorio (SSL/TLS)
+- ✅ Neon.tech con SSL connection automática
+- ✅ Rate limiting en requests de IA
+- ✅ Sanitización de inputs en frontend y backend
+- ✅ CORS configurado en Netlify Functions
+- ✅ Validación de roles en frontend y backend
 
-## Características Principales
+---
 
-### Dashboard de Superadmin
-- Estadísticas generales del sistema
-- Accesos rápidos a funciones principales
-- Información de tablas y agentes IA
+## 📞 Soporte y Contacto
 
-### Gestor de Actividades
-- **Listado** con filtros por libro, unidad y tipo
-- **Búsqueda** en tiempo real
-- **Crear** nuevas actividades
-- **Editar** actividades existentes
-- **Eliminar** actividades
-- **Resumen** por libro
+Para preguntas sobre el proyecto, consulta la documentación técnica o contacta al equipo de desarrollo.
 
-### Tipos de Actividades Soportados
-1. Expresión oral (oral_expression)
-2. Comprensión lectora (reading_comprehension)
-3. Vocabulario (vocabulary)
-4. Comprensión auditiva (listening_comprehension)
-5. Interacción oral (oral_interaction)
-6. Ortografía (spelling)
-7. Pronunciación (pronunciation)
-8. Gramática (grammar)
-9. Escritura (writing)
-10. Autoevaluación (self_assessment)
+### Documentación de Dependencias
+- [Neon.tech Docs](https://neon.tech/docs)
+- [Auth0 Docs](https://auth0.com/docs)
+- [Clerk Docs](https://clerk.dev/docs)
+- [PostgreSQL Docs](https://www.postgresql.org/docs/)
+- [Netlify Functions Docs](https://docs.netlify.com/functions/)
+- [DeepSeek API Docs](https://platform.deepseek.com/docs)
+- [React Docs](https://react.dev)
 
-### Estructuras de Actividad
-1. Opción múltiple (multiple_choice)
-2. Rellenar huecos (fill_blank)
-3. Verdadero/Falso (true_false)
-4. Emparejar (matching)
-5. Ordenar (ordering)
-6. Respuesta corta (short_answer)
-7. Respuesta abierta (open_ended)
-8. Diálogo (dialogue)
-9. Ensayo (essay)
+---
 
-## Agentes IA - MOMENTO 1
-
-### Agentes Disponibles
-1. **Translator** - Traducciones contextuales
-2. **Vocabulary** - Explicaciones de palabras
-3. **Personalizer** - Ejemplos personalizados
-4. **Creative** - Historias y diálogos creativos
-
-## API - Netlify Functions
-
-### Endpoints Disponibles
-
-Todas las funciones están en `netlify/functions/` y se acceden vía `/.netlify/functions/` o `/api/` (con redirect configurado).
-
-#### Activities (CRUD completo)
-
-**GET /api/activities**
-- Listar todas las actividades
-- Query params opcionales: `book_code`, `unit_number`, `activity_type`
-- Ejemplo: `/api/activities?book_code=EM1&unit_number=1`
-
-**GET /api/activities/stats**
-- Estadísticas generales del sistema
-- Retorna: totalActivities, activeBooks, totalUnits, activityTypes
-
-**GET /api/activities/:id**
-- Obtener una actividad específica por ID (UUID)
-
-**POST /api/activities**
-- Crear nueva actividad
-- Body: JSON con todos los campos obligatorios
-- Retorna: actividad creada con ID generado
-
-**PUT /api/activities/:id**
-- Actualizar actividad existente
-- Body: JSON con campos a actualizar
-- Retorna: actividad actualizada
-
-**DELETE /api/activities/:id**
-- Eliminar actividad por ID
-- Retorna: mensaje de confirmación
-
-### Campos Obligatorios para Actividades
-
-```javascript
-{
-  book_code: "EM1",              // EM1, EM2, EM3, EM4
-  unit_number: 1,                // 1-12
-  activity_number: 1,            // número correlativo
-  activity_type: "vocabulary",   // ver lista completa en README
-  activity_structure: "multiple_choice",  // ver lista completa
-  title: "Título de la actividad",
-  instructions: "Instrucciones para el estudiante",
-  content: { /* objeto JSON */ },
-  available_agents: {
-    translator: true,
-    vocabulary: true,
-    personalizer: false,
-    creative: false
-  },
-  estimated_time: 15             // minutos (opcional)
-}
-```
-
-## Base de Datos
-
-### 6 Tablas - MOMENTO 1: CLASE
-1. `user_profiles` - Perfiles de usuarios
-2. `class_activities` - Actividades de clase
-3. `class_sessions` - Sesiones de aprendizaje
-4. `user_interactions` - Interacciones para ML
-5. `user_achievements` - Sistema de logros
-6. `ai_cache` - Caché de respuestas IA
-
-## Estado del Desarrollo
-
-### Completado ✅
-- [x] Estructura base del proyecto React + Vite
-- [x] React Router con navegación
-- [x] Dashboard de superadministrador con estadísticas
-- [x] Gestor de actividades con filtros y búsqueda
-- [x] Formulario de creación/edición de actividades
-- [x] Netlify Functions para CRUD de actividades
-- [x] Conexión con Neon.tech PostgreSQL 17
-- [x] Servicios API (activityService.js)
-- [x] Configuración de base de datos (database.js)
-- [x] Validación de datos de actividades
-
-### Próximos Pasos 🚧
-- [ ] Configurar variable DATABASE_URL en .env
-- [ ] Probar Netlify Functions localmente
-- [ ] Implementar vista previa de actividades
-- [ ] Añadir sistema de importación/exportación
-- [ ] Implementar página de detalle de actividad
-- [ ] Integrar Auth0 para autenticación (futuro)
-
-## Configuración de Producción
-
-### Deploy en Netlify
-
-1. Conectar repositorio a Netlify
-2. Configurar build command: `npm run build`
-3. Configurar publish directory: `dist`
-4. Añadir variables de entorno en Netlify Dashboard
-
-## Licencia
+## 📄 Licencia
 
 Este proyecto es privado y propietario. Todos los derechos reservados.
 
 ---
 
-**Versión**: 0.1.0 (MVP)
-**Última actualización**: Noviembre 2024
+**Última actualización**: Noviembre 2025
+**Versión**: 0.6.0 (En Desarrollo - Sistema de Diseño Unificado)
