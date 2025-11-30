@@ -9,6 +9,95 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [0.7.0] - Integración Base de Datos Neon + Netlify Blobs (Noviembre 2025) 🗄️
+
+### ✨ Agregado
+
+#### **Integración con Neon.tech PostgreSQL** 📊
+- **Tabla `cursos`** con campos en español:
+  - `id` (UUID), `codigo`, `nombre`, `empresa`, `unidades`
+  - `lecciones_por_unidad`, `nivel`, `periodo_dias`, `horas_proyectadas`
+  - `portada`, `estado`, `progreso`, `created_at`, `updated_at`
+- **Migración SQL** completa en `database/migration_cursos_espanol.sql`
+- **4 cursos iniciales** migrados (EM1, EM2, EM3, EM4 - Español en Marcha)
+
+#### **API de Cursos (Netlify Functions)** 🔌
+- **`/api/courses`** - Nuevo endpoint CRUD completo:
+  - `GET /api/courses` - Obtener todos los cursos
+  - `GET /api/courses/:id` - Obtener curso por ID (UUID)
+  - `GET /api/courses/stats` - Estadísticas de cursos
+  - `POST /api/courses` - Crear nuevo curso
+  - `PUT /api/courses/:id` - Actualizar curso existente
+  - `DELETE /api/courses/:id` - Eliminar curso
+- **Validaciones** de nivel (A1-C2) y progreso (0-100)
+- **Tagged template literals** para queries SQL seguras
+
+#### **Sistema de Upload con Netlify Blobs** 📁
+- **`/api/upload`** - Nuevo endpoint para imágenes:
+  - `POST /api/upload` - Subir imagen (retorna URL)
+  - `GET /api/upload/:filename` - Obtener imagen
+  - `DELETE /api/upload/:filename` - Eliminar imagen
+- **Modo desarrollo**: Guarda en `public/uploads/` (local)
+- **Modo producción**: Usa Netlify Blobs (cloud)
+- **Soporte** para JPEG, PNG, GIF, WebP
+
+#### **Servicio de Cursos (Frontend)** 🎨
+- **`src/services/courseService.js`** - Nuevo servicio:
+  - `getAllCourses()` - Obtener todos los cursos
+  - `getCourseById()` - Obtener curso por ID
+  - `createCourse()` - Crear curso
+  - `updateCourse()` - Actualizar curso
+  - `deleteCourse()` - Eliminar curso
+  - `getCoursesStats()` - Estadísticas
+  - `uploadPortada()` - Subir imagen de portada
+  - `deletePortada()` - Eliminar imagen
+  - `validateCourseData()` - Validación de datos
+
+### 🔄 Cambiado
+
+#### **ActivitiesManager - Conexión a Base de Datos**
+- **Eliminados datos hardcodeados** - Ahora carga desde API
+- **Formulario actualizado** con campos en español:
+  - `codigo`, `nombre`, `empresa`, `unidades`, `lecciones_por_unidad`
+  - `nivel`, `periodo_dias`, `horas_proyectadas`, `portada`
+- **Upload de imágenes** integrado en el formulario
+- **Estados de carga** (loading, uploading) con feedback visual
+- **Manejo de errores** mejorado con mensajes en español
+
+#### **Configuración de Netlify**
+- **`netlify.toml`** actualizado para desarrollo local:
+  - Puerto 8888 para Netlify Dev
+  - Puerto 5173 para Vite
+  - Redirect `/api/*` a funciones
+- **`public/_redirects`** para producción (SPA routing)
+
+### 🐛 Corregido
+- **Error de tagged template literals** en `@neondatabase/serverless`
+- **Conflicto de redirects** entre desarrollo y producción
+- **Error de Vite** parseando HTML como JavaScript
+
+### 📁 Archivos Nuevos
+- `netlify/functions/courses.js` - API CRUD de cursos
+- `netlify/functions/upload.js` - API de upload de imágenes
+- `src/services/courseService.js` - Servicio frontend de cursos
+- `database/migration_cursos_espanol.sql` - Migración SQL
+- `public/_redirects` - Redirects para producción
+
+### 📁 Archivos Modificados
+- `src/pages/admin/ActivitiesManager.jsx` - Conectado a API
+- `netlify.toml` - Configuración de desarrollo
+- `.gitignore` - Ignorar uploads locales
+- `package.json` - Añadido `@netlify/blobs`
+
+### 📊 Métricas
+- **1 tabla** nueva en Neon.tech (`cursos`)
+- **2 funciones** Netlify nuevas (courses, upload)
+- **1 servicio** frontend nuevo (courseService)
+- **4 cursos** migrados a base de datos
+- **100%** sincronización web ↔ base de datos
+
+---
+
 ## [0.6.3] - Mejoras en Dashboard: Gráfico de Barras (Noviembre 2025) 📊
 
 ### 🔄 Cambiado

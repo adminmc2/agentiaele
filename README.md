@@ -2,7 +2,7 @@
 
 > Sistema educativo completo para aprendizaje de español como lengua extranjera (ELE) aplicado al método "Español en Marcha" nivel A1, con equipo de agentes de IA especializados y gamificación
 
-[![Version](https://img.shields.io/badge/version-0.6.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Privado-red.svg)]()
 [![Status](https://img.shields.io/badge/status-En%20Desarrollo-yellow.svg)]()
 
@@ -359,4 +359,4 @@ Este proyecto es privado y propietario. Todos los derechos reservados.
 ---
 
 **Última actualización**: Noviembre 2025
-**Versión**: 0.6.0 (En Desarrollo - Sistema de Diseño Unificado)
+**Versión**: 0.7.0 (En Desarrollo - Integración Base de Datos Neon + Netlify Blobs)
