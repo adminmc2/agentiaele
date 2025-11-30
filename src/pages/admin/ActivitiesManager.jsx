@@ -12,29 +12,35 @@
 // - Timer: Horas proyectadas
 // - Upload: Portada
 // ========================================
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreVertical, ArrowUpRight, Plus, X, Upload, BookMarked, Building2, FolderTree, Hash, CalendarDays, Timer, GraduationCap, Key, Search, Filter } from 'lucide-react';
 import CustomSelect from '../../components/CustomSelect';
+import { getAllCourses, createCourse, updateCourse, validateCourseData, uploadPortada } from '../../services/courseService';
 import './ActivitiesManager.css';
 
 const ActivitiesManager = () => {
   const navigate = useNavigate();
+  const [cursos, setCursos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilter, setSearchFilter] = useState('all');
   const [formData, setFormData] = useState({
-    courseCode: '',
-    courseName: '',
-    company: '',
-    units: '',
-    lessonsPerUnit: '',
-    level: '',
-    projectDays: '',
-    projectHours: '',
-    coverImage: null
+    codigo: '',
+    nombre: '',
+    empresa: '',
+    unidades: '',
+    lecciones_por_unidad: '',
+    nivel: '',
+    periodo_dias: '',
+    horas_proyectadas: '',
+    portada: null
   });
+  const [portadaFile, setPortadaFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   // Opciones para el select de nivel
   const levelOptions = [
@@ -46,98 +52,70 @@ const ActivitiesManager = () => {
     { value: 'C2', label: 'C2' }
   ];
 
-  // Datos de ejemplo de cursos
-  const courses = [
-    {
-      id: 1,
-      title: 'Español en marcha 1',
-      company: 'SGEL',
-      hours: 20,
-      lessons: 15,
-      level: 'A1',
-      status: 'En proceso',
-      progress: 60,
-      coverImage: '/portada.jpg'
-    },
-    {
-      id: 2,
-      title: 'Español en marcha 2',
-      company: 'SGEL',
-      hours: 30,
-      lessons: 20,
-      level: 'A2',
-      status: 'Por empezar',
-      progress: 0,
-      coverImage: '/em2.jpg'
-    },
-    {
-      id: 3,
-      title: 'Español en marcha 3',
-      company: 'SGEL',
-      hours: 25,
-      lessons: 18,
-      level: 'B1',
-      status: 'Finalizado',
-      progress: 100,
-      coverImage: '/em3.jpg'
-    },
-    {
-      id: 4,
-      title: 'Español en marcha 4',
-      company: 'SGEL',
-      hours: 35,
-      lessons: 25,
-      level: 'B2',
-      status: 'Por empezar',
-      progress: 0,
-      coverImage: '/em4.jpeg'
+  // Cargar cursos desde la API al montar el componente
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllCourses();
+      setCursos(data);
+    } catch (err) {
+      console.error('Error cargando cursos:', err);
+      setError(err.message || 'Error al cargar los cursos');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   // Función de filtrado de cursos
-  const filteredCourses = courses.filter((course) => {
+  const filteredCourses = cursos.filter((curso) => {
     const searchLower = searchQuery.toLowerCase();
 
     if (!searchLower) return true;
 
     switch (searchFilter) {
       case 'level':
-        return course.level.toLowerCase().includes(searchLower);
+        return curso.nivel?.toLowerCase().includes(searchLower);
       case 'company':
-        return course.company.toLowerCase().includes(searchLower);
+        return curso.empresa?.toLowerCase().includes(searchLower);
       case 'en-proceso':
-        return course.status.toLowerCase() === 'en proceso';
+        return curso.estado?.toLowerCase() === 'en proceso';
       case 'por-empezar':
-        return course.status.toLowerCase() === 'por empezar';
+        return curso.estado?.toLowerCase() === 'por empezar';
       case 'finalizado':
-        return course.status.toLowerCase() === 'finalizado';
+        return curso.estado?.toLowerCase() === 'finalizado';
       case 'all':
       default:
         return (
-          course.title.toLowerCase().includes(searchLower) ||
-          course.company.toLowerCase().includes(searchLower) ||
-          course.level.toLowerCase().includes(searchLower) ||
-          course.status.toLowerCase().includes(searchLower)
+          curso.nombre?.toLowerCase().includes(searchLower) ||
+          curso.empresa?.toLowerCase().includes(searchLower) ||
+          curso.nivel?.toLowerCase().includes(searchLower) ||
+          curso.estado?.toLowerCase().includes(searchLower)
         );
     }
   });
 
-  const handleNavigateToCourse = (courseId) => {
-    navigate(`/activities/${courseId}`);
+  const handleNavigateToCourse = (cursoId) => {
+    navigate(`/activities/${cursoId}`);
   };
 
-  const handleEditCourse = (course) => {
-    setEditingCourse(course);
+  const handleEditCourse = (curso) => {
+    setEditingCourse(curso);
+    setPortadaFile(null);
     setFormData({
-      courseCode: course.code || '',
-      courseName: course.title,
-      company: course.company,
-      units: '',
-      lessonsPerUnit: '',
-      level: course.level,
-      projectDays: '',
-      projectHours: course.hours,
-      coverImage: course.coverImage
+      codigo: curso.codigo || '',
+      nombre: curso.nombre || '',
+      empresa: curso.empresa || '',
+      unidades: curso.unidades || '',
+      lecciones_por_unidad: curso.lecciones_por_unidad || '',
+      nivel: curso.nivel || '',
+      periodo_dias: curso.periodo_dias || '',
+      horas_proyectadas: curso.horas_proyectadas || '',
+      portada: curso.portada
     });
     setShowModal(true);
   };
@@ -149,16 +127,17 @@ const ActivitiesManager = () => {
 
   const handleAddNewCourse = () => {
     setEditingCourse(null);
+    setPortadaFile(null);
     setFormData({
-      courseCode: '',
-      courseName: '',
-      company: '',
-      units: '',
-      lessonsPerUnit: '',
-      level: '',
-      projectDays: '',
-      projectHours: '',
-      coverImage: null
+      codigo: '',
+      nombre: '',
+      empresa: '',
+      unidades: '',
+      lecciones_por_unidad: '',
+      nivel: '',
+      periodo_dias: '',
+      horas_proyectadas: '',
+      portada: null
     });
     setShowModal(true);
   };
@@ -174,18 +153,76 @@ const ActivitiesManager = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setPortadaFile(file);
       setFormData(prev => ({
         ...prev,
-        coverImage: URL.createObjectURL(file)
+        portada: URL.createObjectURL(file)
       }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Formulario enviado:', formData);
-    setShowModal(false);
-    // Aquí iría la lógica para guardar el curso
+
+    // Los datos ya están en español, enviar directamente
+    let portadaUrl = formData.portada;
+
+    // Si hay un archivo nuevo de portada, subirlo a Netlify Blobs
+    if (portadaFile) {
+      try {
+        setUploading(true);
+        const uploadResult = await uploadPortada(portadaFile);
+        portadaUrl = uploadResult.url;
+      } catch (err) {
+        console.error('Error subiendo imagen:', err);
+        alert('Error al subir la imagen: ' + err.message);
+        setUploading(false);
+        return;
+      }
+    }
+
+    const cursoData = {
+      codigo: formData.codigo,
+      nombre: formData.nombre,
+      empresa: formData.empresa || null,
+      nivel: formData.nivel || null,
+      unidades: formData.unidades ? parseInt(formData.unidades) : null,
+      lecciones_por_unidad: formData.lecciones_por_unidad ? parseInt(formData.lecciones_por_unidad) : null,
+      periodo_dias: formData.periodo_dias ? parseInt(formData.periodo_dias) : null,
+      horas_proyectadas: formData.horas_proyectadas ? parseInt(formData.horas_proyectadas) : null,
+      portada: portadaUrl || null
+    };
+
+    // Validar datos
+    const validation = validateCourseData(cursoData);
+    if (!validation.valid) {
+      alert('Errores de validación:\n' + validation.errors.join('\n'));
+      setUploading(false);
+      return;
+    }
+
+    try {
+      if (editingCourse) {
+        // Actualizar curso existente
+        await updateCourse(editingCourse.id, cursoData);
+        console.log('Curso actualizado exitosamente');
+      } else {
+        // Crear nuevo curso
+        await createCourse(cursoData);
+        console.log('Curso creado exitosamente');
+      }
+
+      // Recargar cursos y cerrar modal
+      await fetchCourses();
+      setShowModal(false);
+      setEditingCourse(null);
+      setPortadaFile(null);
+    } catch (err) {
+      console.error('Error guardando curso:', err);
+      alert('Error al guardar el curso: ' + err.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   // Generar barras de progreso
@@ -216,7 +253,34 @@ const ActivitiesManager = () => {
             </button>
           </div>
 
+          {/* Mostrar error si existe */}
+          {error && (
+            <div style={{
+              padding: '1rem',
+              margin: '1rem 0',
+              background: '#fee',
+              border: '1px solid #fcc',
+              borderRadius: '8px',
+              color: '#c00'
+            }}>
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+
+          {/* Mostrar loading */}
+          {loading && (
+            <div style={{
+              padding: '2rem',
+              textAlign: 'center',
+              fontSize: '18px',
+              color: '#666'
+            }}>
+              Cargando cursos...
+            </div>
+          )}
+
           {/* Barra de búsqueda */}
+          {!loading && !error && (
           <div className="search-container">
             <div className="search-bar">
               <Search size={18} />
@@ -278,19 +342,22 @@ const ActivitiesManager = () => {
               </button>
             </div>
           </div>
+          )}
 
+          {/* Grid de cursos */}
+          {!loading && !error && (
           <div className="courses-grid">
-          {filteredCourses.map((course) => (
-            <React.Fragment key={course.id}>
+          {filteredCourses.map((curso) => (
+            <React.Fragment key={curso.id}>
             <div className="course-card">
               {/* Header de la tarjeta */}
               <div className="card-header">
-                <button className="menu-btn" onClick={() => handleEditCourse(course)}>
+                <button className="menu-btn" onClick={() => handleEditCourse(curso)}>
                   <MoreVertical size={20} />
                 </button>
                 <button
                   className="expand-btn"
-                  onClick={() => handleNavigateToCourse(course.id)}
+                  onClick={() => handleNavigateToCourse(curso.id)}
                 >
                   <ArrowUpRight size={20} />
                 </button>
@@ -300,26 +367,26 @@ const ActivitiesManager = () => {
               <div className="card-row-1">
                 {/* Imagen de portada */}
                 <div className="card-cover">
-                  <img src={course.coverImage} alt={course.title} />
+                  <img src={curso.portada || '/portada.jpg'} alt={curso.nombre} />
                 </div>
 
                 {/* Columna derecha con Parte 1 y Parte 2 */}
                 <div className="card-info">
                   {/* PARTE 1: Título, Empresa y Nivel */}
                   <div className="card-info-top">
-                    <h2 className="card-title">{course.title}</h2>
-                    <p className="card-company">{course.company}</p>
-                    <div className="card-level">{course.level}</div>
+                    <h2 className="card-title">{curso.nombre}</h2>
+                    <p className="card-company">{curso.empresa}</p>
+                    <div className="card-level">{curso.nivel}</div>
                   </div>
 
                   {/* PARTE 2: Horas y Lecciones */}
                   <div className="card-stats">
                     <div className="stat">
-                      <span className="stat-value">{course.hours}</span>
+                      <span className="stat-value">{curso.horas_proyectadas || 0}</span>
                       <span className="stat-label">Horas</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-value">{course.lessons}</span>
+                      <span className="stat-value">{curso.lecciones_por_unidad || 0}</span>
                       <span className="stat-label">Lecciones</span>
                     </div>
                   </div>
@@ -329,12 +396,12 @@ const ActivitiesManager = () => {
               {/* FILA 2: Progreso (full width) */}
               <div className="card-row-2">
                 {/* PARTE 3: Barras de progreso */}
-                <ProgressBars progress={course.progress} />
+                <ProgressBars progress={curso.progreso || 0} />
 
                 {/* Estado y porcentaje */}
                 <div className="card-footer">
-                  <span className="status">{course.status}</span>
-                  <span className="percentage">{course.progress}%</span>
+                  <span className="status">{curso.estado}</span>
+                  <span className="percentage">{curso.progreso || 0}%</span>
                 </div>
               </div>
             </div>
@@ -342,6 +409,7 @@ const ActivitiesManager = () => {
             </React.Fragment>
           ))}
         </div>
+        )}
         </div>
       </div>
 
@@ -368,8 +436,8 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="text"
-                      name="courseName"
-                      value={formData.courseName}
+                      name="nombre"
+                      value={formData.nombre}
                       onChange={handleInputChange}
                       className="input-text"
                       placeholder="Ej: Español en marcha 1"
@@ -384,11 +452,11 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="text"
-                      name="courseCode"
-                      value={formData.courseCode}
+                      name="codigo"
+                      value={formData.codigo}
                       onChange={handleInputChange}
                       className="input-text"
-                      placeholder="Ej: EM-A1-001"
+                      placeholder="Ej: EM1"
                       required
                     />
                   </div>
@@ -400,8 +468,8 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="text"
-                      name="company"
-                      value={formData.company}
+                      name="empresa"
+                      value={formData.empresa}
                       onChange={handleInputChange}
                       className="input-text"
                       placeholder="Ej: SGEL"
@@ -421,8 +489,8 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="number"
-                      name="units"
-                      value={formData.units}
+                      name="unidades"
+                      value={formData.unidades}
                       onChange={handleInputChange}
                       className="input-text"
                       placeholder="0"
@@ -438,8 +506,8 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="number"
-                      name="lessonsPerUnit"
-                      value={formData.lessonsPerUnit}
+                      name="lecciones_por_unidad"
+                      value={formData.lecciones_por_unidad}
                       onChange={handleInputChange}
                       className="input-text"
                       placeholder="0"
@@ -459,8 +527,8 @@ const ActivitiesManager = () => {
                       <span>Nivel de lengua</span>
                     </label>
                     <CustomSelect
-                      value={formData.level}
-                      onChange={(value) => setFormData(prev => ({ ...prev, level: value }))}
+                      value={formData.nivel}
+                      onChange={(value) => setFormData(prev => ({ ...prev, nivel: value }))}
                       options={levelOptions}
                       placeholder="Seleccionar nivel"
                       required
@@ -474,8 +542,8 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="number"
-                      name="projectDays"
-                      value={formData.projectDays}
+                      name="periodo_dias"
+                      value={formData.periodo_dias}
                       onChange={handleInputChange}
                       className="input-text"
                       placeholder="0"
@@ -491,8 +559,8 @@ const ActivitiesManager = () => {
                     </label>
                     <input
                       type="number"
-                      name="projectHours"
-                      value={formData.projectHours}
+                      name="horas_proyectadas"
+                      value={formData.horas_proyectadas}
                       onChange={handleInputChange}
                       className="input-text"
                       placeholder="0"
@@ -506,14 +574,14 @@ const ActivitiesManager = () => {
                       <Upload size={16} />
                       <span>Portada</span>
                     </label>
-                    {!formData.coverImage ? (
+                    {!formData.portada ? (
                       <label htmlFor="cover-image-upload" className="btn-upload">
                         Subir imagen
                       </label>
                     ) : (
                       <div className="image-preview-compact">
-                        <img src={typeof formData.coverImage === 'string' ? formData.coverImage : URL.createObjectURL(formData.coverImage)} alt="Portada" />
-                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, coverImage: null }))} className="btn-close-compact remove-btn-compact">
+                        <img src={typeof formData.portada === 'string' ? formData.portada : URL.createObjectURL(formData.portada)} alt="Portada" />
+                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, portada: null }))} className="btn-close-compact remove-btn-compact">
                           <X size={14} />
                         </button>
                       </div>
@@ -531,11 +599,11 @@ const ActivitiesManager = () => {
 
               {/* Botones de acción */}
               <div className="modal-footer">
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
+                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)} disabled={uploading}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn-primary">
-                  {editingCourse ? 'Guardar Cambios' : 'Crear Curso'}
+                <button type="submit" className="btn-primary" disabled={uploading}>
+                  {uploading ? 'Subiendo imagen...' : (editingCourse ? 'Guardar Cambios' : 'Crear Curso')}
                 </button>
               </div>
             </form>

@@ -4,14 +4,31 @@
 [build]
   # Directory that contains the deploy-ready HTML files and assets
   publish = "dist"
-
   # Build command to run
   command = "npm run build"
+  # Functions directory
+  functions = "netlify/functions"
 
-# Redirect rules for SPA (Single Page Application)
+[dev]
+  # Port for the dev server
+  port = 8888
+  # Target port where Vite runs
+  targetPort = 5173
+  # Framework detection
+  framework = "#custom"
+  # Command to start dev server
+  command = "npm run dev"
+
+[functions]
+  # Node.js version for functions
+  node_bundler = "esbuild"
+  # Directory for functions
+  directory = "netlify/functions"
+
+# API redirects - route /api/* to functions
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
 
 # Headers for security and performance
