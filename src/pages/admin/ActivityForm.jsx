@@ -24,10 +24,20 @@ import {
   ArrowLeftRight,
   FileQuestion,
   PenTool,
-  Search
+  Search,
+  Settings,
+  FlaskConical,
+  History,
+  Send,
+  Trash2,
+  Download,
+  Bot,
+  User,
+  Loader2,
+  Check
 } from 'lucide-react';
-import { createActivity, updateActivity, getActivityById, validateActivityData } from '../../services/activityService';
-import { ACTIVITY_TYPES, ACTIVITY_STRUCTURES, BOOK_CODES, MOMENTO1_AGENTS, CONTENT_BLOCK_TYPES } from '../../config/database';
+import { createAction, updateAction, getActionById, validateActionData } from '../../services/actionService';
+import { ACTIVITY_TYPES, ACTIVITY_STRUCTURES, MOMENTO1_AGENTS, CONTENT_BLOCK_TYPES } from '../../config/database';
 import CustomSelect from '../../components/CustomSelect';
 import ContentBlock from '../../components/ContentBlock';
 import './ActivityForm.css';
@@ -52,10 +62,15 @@ const ICON_MAP = {
   PenTool
 };
 
-const ActivityForm = () => {
+const ActivityForm = ({ activityId, courseId }) => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  // Usar activityId del prop (modal) o de useParams (página directa)
+  const { id: urlId } = useParams();
+  const id = activityId || urlId;
   const isEditMode = Boolean(id);
+
+  // Estado de pestañas
+  const [activeTab, setActiveTab] = useState('config'); // 'config', 'test', 'history'
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -63,27 +78,37 @@ const ActivityForm = () => {
   const [contentBlocks, setContentBlocks] = useState([]);
   const [agentSearchQuery, setAgentSearchQuery] = useState('');
   const [agentSearchFilter, setAgentSearchFilter] = useState('all'); // 'all', 'name', 'description', 'type'
+
+  // Estado para probar prompt (pestaña test)
+  const [testPrompt, setTestPrompt] = useState(''); // Prompt editable en la pestaña de pruebas
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
+  // Estado para historial
+  const [conversations, setConversations] = useState([]);
+  const [expandedConversation, setExpandedConversation] = useState(null);
+
   const [formData, setFormData] = useState({
-    book_code: 'EM1',
-    unit_number: 1,
+    curso_id: courseId || '',
+    numero_unidad: 1,
     apartado: '',
-    activity_number: 1,
-    activity_type: 'vocabulary',
-    activity_structure: 'multiple_choice',
-    instructions: '',
-    activity_text: '',
-    content: {
+    numero_actividad: 1,
+    tipo_actividad: 'vocabulario',
+    estructura_actividad: 'opcion_multiple',
+    instrucciones: '',
+    contenido: {
       blocks: []
     },
-    chat_display_name: '',
-    ai_prompt: '',
-    available_agents: {
+    nombre_chat: '',
+    prompt_ia: '',
+    agentes_disponibles: {
       translator: true,
       vocabulary: true,
       personalizer: false,
       creative: false
     },
-    estimated_time: 15
+    tiempo_estimado: 15
   });
 
   // Cargar actividad existente si estamos en modo edición
@@ -96,23 +121,27 @@ const ActivityForm = () => {
   const loadActivity = async () => {
     try {
       setLoading(true);
-      const activity = await getActivityById(id);
+      const accion = await getActionById(id);
       setFormData({
-        book_code: activity.book_code,
-        unit_number: activity.unit_number,
-        apartado: activity.apartado || '',
-        activity_number: activity.activity_number,
-        activity_type: activity.activity_type,
-        activity_structure: activity.activity_structure,
-        instructions: activity.instructions,
-        activity_text: activity.activity_text || '',
-        content: activity.content,
-        ai_prompt: activity.ai_prompt || '',
-        available_agents: activity.available_agents,
-        estimated_time: activity.estimated_time || 15
+        curso_id: accion.curso_id || courseId,
+        numero_unidad: accion.numero_unidad,
+        apartado: accion.apartado || '',
+        numero_actividad: accion.numero_actividad,
+        tipo_actividad: accion.tipo_actividad,
+        estructura_actividad: accion.estructura_actividad,
+        instrucciones: accion.instrucciones || '',
+        contenido: accion.contenido || { blocks: [] },
+        nombre_chat: accion.nombre_chat || '',
+        prompt_ia: accion.prompt_ia || '',
+        agentes_disponibles: accion.agentes_disponibles || {},
+        tiempo_estimado: accion.tiempo_estimado || 15
       });
+      // Cargar bloques de contenido si existen
+      if (accion.contenido?.blocks) {
+        setContentBlocks(accion.contenido.blocks);
+      }
     } catch (err) {
-      setError('Error cargando actividad: ' + err.message);
+      setError('Error cargando acción: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -128,9 +157,9 @@ const ActivityForm = () => {
   const handleAgentToggle = (agentKey) => {
     setFormData(prev => ({
       ...prev,
-      available_agents: {
-        ...prev.available_agents,
-        [agentKey]: !prev.available_agents[agentKey]
+      agentes_disponibles: {
+        ...prev.agentes_disponibles,
+        [agentKey]: !prev.agentes_disponibles[agentKey]
       }
     }));
   };
@@ -180,22 +209,142 @@ const ActivityForm = () => {
     setContentBlocks(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Actualizar formData.content cuando cambian los bloques
+  // Actualizar formData.contenido cuando cambian los bloques
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      content: {
+      contenido: {
         blocks: contentBlocks
       }
     }));
   }, [contentBlocks]);
+
+  // Función para procesar placeholders en el prompt
+  const processPrompt = (prompt) => {
+    let processed = prompt;
+
+    // Campos del formulario
+    processed = processed.replace(/\{\{tipo_actividad\}\}/g, formData.tipo_actividad || '');
+    processed = processed.replace(/\{\{estructura_actividad\}\}/g, formData.estructura_actividad || '');
+    processed = processed.replace(/\{\{instrucciones\}\}/g, formData.instrucciones || '');
+    processed = processed.replace(/\{\{numero_unidad\}\}/g, String(formData.numero_unidad || ''));
+    processed = processed.replace(/\{\{apartado\}\}/g, formData.apartado || '');
+    processed = processed.replace(/\{\{numero_actividad\}\}/g, String(formData.numero_actividad || ''));
+    processed = processed.replace(/\{\{tiempo_estimado\}\}/g, String(formData.tiempo_estimado || ''));
+    processed = processed.replace(/\{\{nombre_chat\}\}/g, formData.nombre_chat || '');
+
+    // Contenido completo como JSON
+    processed = processed.replace(/\{\{contenido\}\}/g, JSON.stringify(formData.contenido, null, 2));
+
+    // Agentes disponibles
+    const agentesActivos = Object.entries(formData.agentes_disponibles)
+      .filter(([_, activo]) => activo)
+      .map(([key]) => MOMENTO1_AGENTS[key]?.name || key)
+      .join(', ');
+    processed = processed.replace(/\{\{agentes_disponibles\}\}/g, agentesActivos);
+
+    // Campos de bloques de contenido
+    if (formData.contenido?.blocks) {
+      formData.contenido.blocks.forEach(block => {
+        if (block.data) {
+          Object.entries(block.data).forEach(([key, value]) => {
+            const placeholder = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+            processed = processed.replace(placeholder, typeof value === 'object' ? JSON.stringify(value) : String(value));
+          });
+        }
+      });
+    }
+
+    return processed;
+  };
+
+  // Inicializar testPrompt cuando se cambia a la pestaña de test
+  useEffect(() => {
+    if (activeTab === 'test' && !testPrompt) {
+      setTestPrompt(processPrompt(formData.prompt_ia));
+    }
+  }, [activeTab]);
+
+  // Función para enviar mensaje en el chat de prueba
+  const handleSendTestMessage = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() || isSending) return;
+
+    const userMessage = {
+      id: chatMessages.length + 1,
+      role: 'user',
+      content: chatInput.trim(),
+      timestamp: new Date().toISOString()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsSending(true);
+
+    try {
+      // TODO: Llamar al servicio de IA con testPrompt como system prompt
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const aiResponse = {
+        id: chatMessages.length + 2,
+        role: 'assistant',
+        content: `[Respuesta simulada] El prompt procesado tiene ${testPrompt.length} caracteres. En producción, aquí vendría la respuesta real de DeepSeek usando el prompt configurado.`,
+        timestamp: new Date().toISOString()
+      };
+
+      setChatMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error en chat de prueba:', error);
+      const errorMessage = {
+        id: chatMessages.length + 2,
+        role: 'assistant',
+        content: 'Error al procesar el mensaje. Intenta de nuevo.',
+        timestamp: new Date().toISOString(),
+        isError: true
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Limpiar chat de prueba
+  const handleClearChat = () => {
+    if (window.confirm('¿Limpiar el chat de prueba?')) {
+      setChatMessages([]);
+    }
+  };
+
+  // Guardar conversación en historial
+  const handleSaveConversation = () => {
+    if (chatMessages.length === 0) return;
+
+    const title = prompt('Título de la conversación:', `Prueba ${new Date().toLocaleDateString()}`);
+    if (title) {
+      const newConversation = {
+        id: Date.now(),
+        title,
+        messages: [...chatMessages],
+        prompt: testPrompt,
+        createdAt: new Date().toISOString()
+      };
+      setConversations(prev => [newConversation, ...prev]);
+      alert('Conversación guardada');
+    }
+  };
+
+  // Aplicar el prompt editado al formulario
+  const handleApplyPrompt = () => {
+    handleInputChange('prompt_ia', testPrompt);
+    alert('Prompt aplicado al formulario. Recuerda guardar la acción.');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     // Validar datos
-    const validation = validateActivityData(formData);
+    const validation = validateActionData(formData);
     if (!validation.valid) {
       setError('Errores de validación:\n' + validation.errors.join('\n'));
       return;
@@ -205,16 +354,16 @@ const ActivityForm = () => {
       setLoading(true);
 
       if (isEditMode) {
-        await updateActivity(id, formData);
-        alert('Actividad actualizada correctamente');
+        await updateAction(id, formData);
+        alert('Acción actualizada correctamente');
       } else {
-        await createActivity(formData);
-        alert('Actividad creada correctamente');
+        await createAction(formData);
+        alert('Acción creada correctamente');
       }
 
       navigate('/admin/activities');
     } catch (err) {
-      setError('Error guardando actividad: ' + err.message);
+      setError('Error guardando acción: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -239,6 +388,39 @@ const ActivityForm = () => {
         </header>
       )}
 
+      {/* Pestañas de navegación */}
+      <nav className="activity-form-tabs">
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'config' ? 'active' : ''}`}
+          onClick={() => setActiveTab('config')}
+        >
+          <Settings size={20} />
+          <span>Configuración</span>
+        </button>
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'test' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('test');
+            if (!testPrompt) {
+              setTestPrompt(processPrompt(formData.prompt_ia));
+            }
+          }}
+        >
+          <FlaskConical size={20} />
+          <span>Probar Prompt</span>
+        </button>
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          <History size={20} />
+          <span>Histórico</span>
+        </button>
+      </nav>
+
       {error && (
         <div className="error-message">
           {error.split('\n').map((line, idx) => (
@@ -247,6 +429,8 @@ const ActivityForm = () => {
         </div>
       )}
 
+      {/* PESTAÑA: CONFIGURACIÓN */}
+      {activeTab === 'config' && (
       <form onSubmit={handleSubmit} className="activity-form-content">
 
         {/* Top Grid: Sections 1 (Left) and 2 (Right) */}
@@ -261,8 +445,8 @@ const ActivityForm = () => {
                   type="number"
                   min="1"
                   max="12"
-                  value={formData.unit_number}
-                  onChange={(e) => handleInputChange('unit_number', parseInt(e.target.value))}
+                  value={formData.numero_unidad}
+                  onChange={(e) => handleInputChange('numero_unidad', parseInt(e.target.value))}
                   required
                 />
               </div>
@@ -287,8 +471,8 @@ const ActivityForm = () => {
               <div className="form-field">
                 <label>Actividad *</label>
                 <CustomSelect
-                  value={formData.activity_number}
-                  onChange={(value) => handleInputChange('activity_number', parseInt(value))}
+                  value={formData.numero_actividad}
+                  onChange={(value) => handleInputChange('numero_actividad', parseInt(value))}
                   options={Array.from({ length: 15 }, (_, i) => i + 1).map(num => ({ value: num, label: num.toString() }))}
                   required
                 />
@@ -296,24 +480,18 @@ const ActivityForm = () => {
               <div className="form-field">
                 <label>Tipo *</label>
                 <CustomSelect
-                  value={formData.activity_type}
-                  onChange={(value) => handleInputChange('activity_type', value)}
-                  options={ACTIVITY_TYPES.map(type => ({
-                    value: type,
-                    label: type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                  }))}
+                  value={formData.tipo_actividad}
+                  onChange={(value) => handleInputChange('tipo_actividad', value)}
+                  options={ACTIVITY_TYPES}
                   required
                 />
               </div>
               <div className="form-field">
                 <label>Estructura *</label>
                 <CustomSelect
-                  value={formData.activity_structure}
-                  onChange={(value) => handleInputChange('activity_structure', value)}
-                  options={ACTIVITY_STRUCTURES.map(structure => ({
-                    value: structure,
-                    label: structure.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-                  }))}
+                  value={formData.estructura_actividad}
+                  onChange={(value) => handleInputChange('estructura_actividad', value)}
+                  options={ACTIVITY_STRUCTURES}
                   required
                 />
               </div>
@@ -323,8 +501,8 @@ const ActivityForm = () => {
                   type="number"
                   min="5"
                   max="120"
-                  value={formData.estimated_time}
-                  onChange={(e) => handleInputChange('estimated_time', parseInt(e.target.value))}
+                  value={formData.tiempo_estimado}
+                  onChange={(e) => handleInputChange('tiempo_estimado', parseInt(e.target.value))}
                   required
                 />
               </div>
@@ -340,8 +518,8 @@ const ActivityForm = () => {
             <div className="form-field">
               <label>Instrucciones *</label>
               <textarea
-                value={formData.instructions}
-                onChange={(e) => handleInputChange('instructions', e.target.value)}
+                value={formData.instrucciones}
+                onChange={(e) => handleInputChange('instrucciones', e.target.value)}
                 placeholder="Añade la instrucción de la actividad"
                 className="textarea-instructions"
                 required
@@ -398,8 +576,8 @@ const ActivityForm = () => {
               <input
                 type="text"
                 className="input-chat-name"
-                value={formData.chat_display_name}
-                onChange={(e) => handleInputChange('chat_display_name', e.target.value)}
+                value={formData.nombre_chat}
+                onChange={(e) => handleInputChange('nombre_chat', e.target.value)}
                 placeholder="Nombre visible en el chat"
                 style={{ borderRadius: '24px' }}
                 required
@@ -468,7 +646,7 @@ const ActivityForm = () => {
                 <label key={key} className="agent-checkbox">
                   <input
                     type="checkbox"
-                    checked={formData.available_agents[key]}
+                    checked={formData.agentes_disponibles[key]}
                     onChange={() => handleAgentToggle(key)}
                   />
                   <div className="agent-info">
@@ -503,9 +681,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{activity_type}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{tipo_actividad}}' + textAfter);
                   }}
                 >
                   + Tipo de actividad
@@ -516,9 +694,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{activity_structure}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{estructura_actividad}}' + textAfter);
                   }}
                 >
                   + Estructura
@@ -529,9 +707,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{instructions}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{instrucciones}}' + textAfter);
                   }}
                 >
                   + Instrucciones
@@ -542,9 +720,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{content}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{contenido}}' + textAfter);
                   }}
                 >
                   + Contenido
@@ -555,9 +733,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{book_code}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{codigo_libro}}' + textAfter);
                   }}
                 >
                   + Código de libro
@@ -568,9 +746,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{unit_number}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{numero_unidad}}' + textAfter);
                   }}
                 >
                   + Número de unidad
@@ -581,9 +759,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{apartado}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{apartado}}' + textAfter);
                   }}
                 >
                   + Apartado
@@ -594,9 +772,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{activity_number}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{numero_actividad}}' + textAfter);
                   }}
                 >
                   + Número de actividad
@@ -607,9 +785,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{estimated_time}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{tiempo_estimado}}' + textAfter);
                   }}
                 >
                   + Tiempo estimado
@@ -620,9 +798,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{available_agents}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{agentes_disponibles}}' + textAfter);
                   }}
                 >
                   + Agentes IA
@@ -640,9 +818,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{category}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{category}}' + textAfter);
                   }}
                 >
                   + Categoría
@@ -653,9 +831,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{text}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{text}}' + textAfter);
                   }}
                 >
                   + Texto
@@ -666,9 +844,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{title}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{title}}' + textAfter);
                   }}
                 >
                   + Título
@@ -679,9 +857,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{audio}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{audio}}' + textAfter);
                   }}
                 >
                   + Audio
@@ -692,9 +870,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{transcription}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{transcription}}' + textAfter);
                   }}
                 >
                   + Transcripción
@@ -705,9 +883,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{questions_list}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{questions_list}}' + textAfter);
                   }}
                 >
                   + Lista de preguntas
@@ -718,9 +896,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{text_with_blanks}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{text_with_blanks}}' + textAfter);
                   }}
                 >
                   + Texto con huecos
@@ -731,9 +909,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{answers}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{answers}}' + textAfter);
                   }}
                 >
                   + Respuestas
@@ -744,9 +922,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{column_a}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{column_a}}' + textAfter);
                   }}
                 >
                   + Columna A
@@ -757,9 +935,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{column_b}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{column_b}}' + textAfter);
                   }}
                 >
                   + Columna B
@@ -770,9 +948,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{items_to_order}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{items_to_order}}' + textAfter);
                   }}
                 >
                   + Elementos a ordenar
@@ -783,9 +961,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{correct_order}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{correct_order}}' + textAfter);
                   }}
                 >
                   + Orden correcto
@@ -796,9 +974,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{situations}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{situations}}' + textAfter);
                   }}
                 >
                   + Situaciones
@@ -809,9 +987,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{image}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{image}}' + textAfter);
                   }}
                 >
                   + Imagen
@@ -822,9 +1000,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{alt_text}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{alt_text}}' + textAfter);
                   }}
                 >
                   + Texto alternativo
@@ -835,9 +1013,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{caption}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{caption}}' + textAfter);
                   }}
                 >
                   + Pie de foto
@@ -848,9 +1026,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{phrases_list}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{phrases_list}}' + textAfter);
                   }}
                 >
                   + Lista de frases
@@ -861,9 +1039,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{words_list}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{words_list}}' + textAfter);
                   }}
                 >
                   + Lista de palabras
@@ -874,9 +1052,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{vocab_list}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{vocab_list}}' + textAfter);
                   }}
                 >
                   + Lista de vocabulario
@@ -887,9 +1065,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{definitions}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{definitions}}' + textAfter);
                   }}
                 >
                   + Definiciones
@@ -900,9 +1078,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{points}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{points}}' + textAfter);
                   }}
                 >
                   + Puntos
@@ -913,9 +1091,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{labels}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{labels}}' + textAfter);
                   }}
                 >
                   + Etiquetas
@@ -926,9 +1104,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{vocab_words}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{vocab_words}}' + textAfter);
                   }}
                 >
                   + Palabras de vocabulario
@@ -939,9 +1117,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{definitions_to_match}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{definitions_to_match}}' + textAfter);
                   }}
                 >
                   + Definiciones a relacionar
@@ -952,9 +1130,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{prompt}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{prompt}}' + textAfter);
                   }}
                 >
                   + Prompt
@@ -965,9 +1143,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{guidelines}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{guidelines}}' + textAfter);
                   }}
                 >
                   + Guías
@@ -978,9 +1156,9 @@ const ActivityForm = () => {
                   onClick={() => {
                     const textarea = document.getElementById('ai-prompt-textarea');
                     const cursorPos = textarea.selectionStart;
-                    const textBefore = formData.ai_prompt.substring(0, cursorPos);
-                    const textAfter = formData.ai_prompt.substring(cursorPos);
-                    handleInputChange('ai_prompt', textBefore + '{{word_count}}' + textAfter);
+                    const textBefore = formData.prompt_ia.substring(0, cursorPos);
+                    const textAfter = formData.prompt_ia.substring(cursorPos);
+                    handleInputChange('prompt_ia', textBefore + '{{word_count}}' + textAfter);
                   }}
                 >
                   + Número de palabras
@@ -992,8 +1170,8 @@ const ActivityForm = () => {
               <label>Prompt personalizado *</label>
               <textarea
                 id="ai-prompt-textarea"
-                value={formData.ai_prompt}
-                onChange={(e) => handleInputChange('ai_prompt', e.target.value)}
+                value={formData.prompt_ia}
+                onChange={(e) => handleInputChange('prompt_ia', e.target.value)}
                 placeholder="Ejemplo: Funciona como el especialista que eres en el tipo de actividad {{activity_type}} con la estructura {{activity_structure}}..."
                 className="json-textarea"
                 rows="15"
@@ -1021,10 +1199,211 @@ const ActivityForm = () => {
             className="btn-submit"
             disabled={loading}
           >
-            {loading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear')} Acción
+            {loading ? 'Guardando...' : (isEditMode ? 'Guardar' : 'Crear')} Acción
           </button>
         </div>
       </form>
+      )}
+
+      {/* PESTAÑA: PROBAR PROMPT */}
+      {activeTab === 'test' && (
+        <div className="test-prompt-container">
+          {/* Prompt editable */}
+          <div className="test-prompt-editor">
+            <div className="editor-header">
+              <h3>Prompt Procesado</h3>
+              <div className="editor-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setTestPrompt(processPrompt(formData.prompt_ia))}
+                  title="Recargar desde formulario"
+                >
+                  <Trash2 size={16} />
+                  Recargar
+                </button>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleApplyPrompt}
+                  title="Aplicar cambios al formulario"
+                >
+                  <Check size={16} />
+                  Aplicar al formulario
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={testPrompt}
+              onChange={(e) => setTestPrompt(e.target.value)}
+              className="test-prompt-textarea"
+              rows="10"
+              placeholder="El prompt procesado aparecerá aquí..."
+            />
+          </div>
+
+          {/* Chat de prueba */}
+          <div className="test-chat-container">
+            <div className="chat-header">
+              <h3>Chat de Prueba</h3>
+              <div className="chat-actions">
+                <button
+                  type="button"
+                  className="btn-icon"
+                  onClick={handleClearChat}
+                  disabled={chatMessages.length === 0}
+                  title="Limpiar chat"
+                >
+                  <Trash2 size={18} />
+                </button>
+                <button
+                  type="button"
+                  className="btn-icon"
+                  onClick={handleSaveConversation}
+                  disabled={chatMessages.length === 0}
+                  title="Guardar conversación"
+                >
+                  <Download size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="chat-messages">
+              {chatMessages.length === 0 ? (
+                <div className="chat-empty">
+                  <Bot size={48} />
+                  <p>Escribe un mensaje para probar el prompt</p>
+                </div>
+              ) : (
+                chatMessages.map(message => (
+                  <div key={message.id} className={`message ${message.role} ${message.isError ? 'error' : ''}`}>
+                    <div className="message-avatar">
+                      {message.role === 'user' ? <User size={20} /> : <Bot size={20} />}
+                    </div>
+                    <div className="message-content">
+                      <div className="message-header">
+                        <span className="message-sender">
+                          {message.role === 'user' ? 'Tú' : 'IA'}
+                        </span>
+                        <span className="message-time">
+                          {new Date(message.timestamp).toLocaleTimeString('es-ES', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <p className="message-text">{message.content}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+              {isSending && (
+                <div className="message assistant typing">
+                  <div className="message-avatar">
+                    <Bot size={20} />
+                  </div>
+                  <div className="message-content">
+                    <div className="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <form className="chat-input-form" onSubmit={handleSendTestMessage}>
+              <textarea
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Escribe un mensaje para probar..."
+                rows="1"
+                disabled={isSending}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendTestMessage(e);
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                className="btn-send"
+                disabled={!chatInput.trim() || isSending}
+              >
+                {isSending ? <Loader2 size={20} className="spinning" /> : <Send size={20} />}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* PESTAÑA: HISTÓRICO */}
+      {activeTab === 'history' && (
+        <div className="history-container">
+          {conversations.length === 0 ? (
+            <div className="history-empty">
+              <History size={64} />
+              <h3>No hay conversaciones guardadas</h3>
+              <p>Prueba el prompt y guarda conversaciones para verlas aquí.</p>
+            </div>
+          ) : (
+            <div className="conversations-list">
+              {conversations.map(conv => (
+                <div key={conv.id} className="conversation-item">
+                  <div
+                    className="conversation-header"
+                    onClick={() => setExpandedConversation(expandedConversation === conv.id ? null : conv.id)}
+                  >
+                    <div className="conversation-info">
+                      <h4>{conv.title}</h4>
+                      <div className="conversation-meta">
+                        <span>{new Date(conv.createdAt).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
+                        <span>{conv.messages.length} mensajes</span>
+                      </div>
+                    </div>
+                    <button
+                      className="btn-delete-conv"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('¿Eliminar esta conversación?')) {
+                          setConversations(prev => prev.filter(c => c.id !== conv.id));
+                        }
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  {expandedConversation === conv.id && (
+                    <div className="conversation-messages">
+                      {conv.messages.map((msg, idx) => (
+                        <div key={idx} className={`history-message ${msg.role}`}>
+                          <div className="history-message-avatar">
+                            {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+                          </div>
+                          <div className="history-message-content">
+                            <span className="history-message-sender">
+                              {msg.role === 'user' ? 'Tú' : 'IA'}
+                            </span>
+                            <p className="history-message-text">{msg.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

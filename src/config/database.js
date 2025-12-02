@@ -28,31 +28,31 @@ export const TABLES = {
   AI_CACHE: 'ai_cache'
 };
 
-// Tipos de actividades permitidos
+// Tipos de actividades permitidos (con etiquetas en español)
 export const ACTIVITY_TYPES = [
-  'oral_expression',
-  'reading_comprehension',
-  'vocabulary',
-  'listening_comprehension',
-  'oral_interaction',
-  'spelling',
-  'pronunciation',
-  'grammar',
-  'writing',
-  'self_assessment'
+  { value: 'expresion_oral', label: 'Expresión oral' },
+  { value: 'comprension_lectora', label: 'Comprensión lectora' },
+  { value: 'vocabulario', label: 'Vocabulario' },
+  { value: 'comprension_auditiva', label: 'Comprensión auditiva' },
+  { value: 'interaccion_oral', label: 'Interacción oral' },
+  { value: 'ortografia', label: 'Ortografía' },
+  { value: 'pronunciacion', label: 'Pronunciación' },
+  { value: 'gramatica', label: 'Gramática' },
+  { value: 'escritura', label: 'Escritura' },
+  { value: 'autoevaluacion', label: 'Autoevaluación' }
 ];
 
-// Estructuras de actividades permitidas
+// Estructuras de actividades permitidas (con etiquetas en español)
 export const ACTIVITY_STRUCTURES = [
-  'multiple_choice',
-  'fill_blank',
-  'true_false',
-  'matching',
-  'ordering',
-  'short_answer',
-  'open_ended',
-  'dialogue',
-  'essay'
+  { value: 'opcion_multiple', label: 'Opción múltiple' },
+  { value: 'completar_huecos', label: 'Completar huecos' },
+  { value: 'verdadero_falso', label: 'Verdadero/Falso' },
+  { value: 'relacionar', label: 'Relacionar' },
+  { value: 'ordenar', label: 'Ordenar' },
+  { value: 'respuesta_corta', label: 'Respuesta corta' },
+  { value: 'respuesta_abierta', label: 'Respuesta abierta' },
+  { value: 'dialogo', label: 'Diálogo' },
+  { value: 'redaccion', label: 'Redacción' }
 ];
 
 // Códigos de libros soportados

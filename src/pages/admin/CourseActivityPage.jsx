@@ -1,90 +1,91 @@
 // ========================================
-// PÁGINA DE GESTIÓN DE ACTIVIDADES DEL CURSO
+// PÁGINA DE GESTIÓN DE ACCIONES DEL CURSO
 // ========================================
-// Modo 4: Navegación a página completa
+// Conectado a API - datos reales de BD
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, X, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Plus, X, Search, Filter, Loader2 } from 'lucide-react';
 import ActivityForm from './ActivityForm';
+import { getCourseById } from '../../services/courseService';
+import { getActionsByCourse, deleteAction } from '../../services/actionService';
 import './CourseActivityPage.css';
 
 const CourseActivityPage = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+
+  // Estados para datos
+  const [course, setCourse] = useState(null);
+  const [actions, setActions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Estados para UI
   const [showModal, setShowModal] = useState(false);
-  const [selectedActivityId, setSelectedActivityId] = useState(null);
+  const [selectedActionId, setSelectedActionId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('all'); // 'all', 'unidad', 'seccion', 'actividad', 'agente'
+  const [filterType, setFilterType] = useState('all');
 
-  // Datos de ejemplo de cursos (en producción, esto vendría de un servicio/API)
-  const courses = [
-    {
-      id: 1,
-      title: 'Español en marcha 1',
-      code: 'EM1',
-      company: 'SGEL',
-      level: 'A1'
-    },
-    {
-      id: 2,
-      title: 'Español en marcha 2',
-      code: 'EM2',
-      company: 'SGEL',
-      level: 'A2'
-    },
-    {
-      id: 3,
-      title: 'Español en marcha 3',
-      code: 'EM3',
-      company: 'SGEL',
-      level: 'B1'
-    },
-    {
-      id: 4,
-      title: 'Español en marcha 4',
-      code: 'EM4',
-      company: 'SGEL',
-      level: 'B2'
+  // Cargar datos del curso y acciones
+  useEffect(() => {
+    loadData();
+  }, [courseId]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Cargar curso y acciones en paralelo
+      const [courseData, actionsData] = await Promise.all([
+        getCourseById(courseId),
+        getActionsByCourse(courseId)
+      ]);
+
+      setCourse(courseData);
+      setActions(actionsData);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const course = courses.find(c => c.id === parseInt(courseId));
-
-  // Datos de ejemplo de actividades creadas
-  const activities = [
-    {
-      id: 1,
-      book_code: 'EM1',
-      unit_number: 1,
-      apartado: 'Gramática',
-      activity_number: 1,
-      activity_type: 'vocabulary',
-      chat_display_name: 'Ag. Expansor'
-    },
-    {
-      id: 2,
-      book_code: 'EM1',
-      unit_number: 1,
-      apartado: 'Lectura',
-      activity_number: 2,
-      activity_type: 'reading_comprehension',
-      chat_display_name: 'Ag. Traducción'
-    }
-  ];
+  };
 
   const handleGoBack = () => {
     navigate('/activities');
   };
 
-  const handleAddActivity = () => {
-    setSelectedActivityId(null);
+  const handleAddAction = () => {
+    setSelectedActionId(null);
     setShowModal(true);
   };
 
-  const handleEditActivity = (activityId) => {
-    setSelectedActivityId(activityId);
+  const handleEditAction = (actionId) => {
+    setSelectedActionId(actionId);
     setShowModal(true);
+  };
+
+  const handleDeleteAction = async (actionId, e) => {
+    e.stopPropagation();
+    if (window.confirm('¿Estás seguro de eliminar esta acción?')) {
+      try {
+        await deleteAction(actionId);
+        // Recargar acciones
+        const actionsData = await getActionsByCourse(courseId);
+        setActions(actionsData);
+      } catch (err) {
+        alert('Error eliminando acción: ' + err.message);
+      }
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedActionId(null);
+    // Recargar acciones después de cerrar el modal
+    loadData();
   };
 
   const handleClearFilters = () => {
@@ -92,45 +93,73 @@ const CourseActivityPage = () => {
     setFilterType('all');
   };
 
-  // Filtrar actividades según el tipo de filtro y búsqueda
-  const getFilteredActivities = () => {
+  // Filtrar acciones según el tipo de filtro y búsqueda
+  const getFilteredActions = () => {
     if (!searchQuery.trim()) {
-      return activities;
+      return actions;
     }
 
     const query = searchQuery.toLowerCase();
 
     switch (filterType) {
       case 'unidad':
-        return activities.filter(act =>
-          act.unit_number.toString().includes(query)
+        return actions.filter(act =>
+          act.numero_unidad.toString().includes(query)
         );
       case 'seccion':
-        return activities.filter(act =>
+        return actions.filter(act =>
           act.apartado.toLowerCase().includes(query)
         );
       case 'actividad':
-        return activities.filter(act =>
-          act.activity_number.toString().includes(query)
+        return actions.filter(act =>
+          act.numero_actividad.toString().includes(query)
         );
       case 'agente':
-        return activities.filter(act =>
-          act.chat_display_name.toLowerCase().includes(query)
+        return actions.filter(act =>
+          act.nombre_chat.toLowerCase().includes(query)
         );
       case 'all':
       default:
-        return activities.filter(act =>
-          act.unit_number.toString().includes(query) ||
+        return actions.filter(act =>
+          act.numero_unidad.toString().includes(query) ||
           act.apartado.toLowerCase().includes(query) ||
-          act.activity_number.toString().includes(query) ||
-          act.chat_display_name.toLowerCase().includes(query) ||
-          act.activity_type.toLowerCase().includes(query)
+          act.numero_actividad.toString().includes(query) ||
+          act.nombre_chat.toLowerCase().includes(query) ||
+          act.tipo_actividad.toLowerCase().includes(query)
         );
     }
   };
 
-  const filteredActivities = getFilteredActivities();
+  const filteredActions = getFilteredActions();
 
+  // Estado de carga
+  if (loading) {
+    return (
+      <div className="course-activity-page">
+        <div className="page-loading">
+          <Loader2 size={40} className="spinner" />
+          <p>Cargando datos del curso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado de error
+  if (error) {
+    return (
+      <div className="course-activity-page">
+        <div className="page-error">
+          <h2>Error cargando datos</h2>
+          <p>{error}</p>
+          <button onClick={handleGoBack} className="btn-primary">
+            Volver a Cursos
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Curso no encontrado
   if (!course) {
     return (
       <div className="course-activity-page">
@@ -154,26 +183,26 @@ const CourseActivityPage = () => {
         </button>
 
         <div className="course-info-header">
-          <h1 className="course-title-main">{course.title}</h1>
+          <h1 className="course-title-main">{course.nombre}</h1>
           <div className="course-meta">
-            <span className="course-code-display">{course.code}</span>
-            <span className="course-company">{course.company}</span>
-            <span className="course-level-badge">{course.level}</span>
+            <span className="course-code-display">{course.codigo}</span>
+            <span className="course-company">{course.empresa}</span>
+            <span className="course-level-badge">{course.nivel}</span>
           </div>
         </div>
       </div>
 
-      {/* Contenedor de actividades con scroll */}
+      {/* Contenedor de acciones con scroll */}
       <div className="activities-container">
         {/* Header del contenedor con botón añadir */}
         <div className="container-header">
-          <button className="add-activity-btn" onClick={handleAddActivity}>
+          <button className="add-activity-btn" onClick={handleAddAction}>
             <Plus size={20} />
             <span>Añadir acción</span>
           </button>
         </div>
 
-        {/* Contenedor scrollable con barra de búsqueda y lista de actividades */}
+        {/* Contenedor scrollable con barra de búsqueda y lista de acciones */}
         <div className="activities-scrollable-content">
           {/* Barra de búsqueda y filtros */}
           <div className="search-container">
@@ -225,40 +254,47 @@ const CourseActivityPage = () => {
           </div>
 
           <div className="activities-list">
-            {filteredActivities.map((activity) => (
-              <div
-                key={activity.id}
-                className="activity-card"
-                onClick={() => handleEditActivity(activity.id)}
-              >
-                <div className="activity-main-info">
-                  <div className="activity-unit-header">UNIDAD {activity.unit_number}</div>
-                  <div className="activity-section-header">SECCIÓN {activity.apartado}</div>
-                  <div className="activity-number-header">ACTIVIDAD {activity.activity_number}</div>
-                </div>
-                <div className="activity-secondary-info">
-                  <div className="activity-agent-name">{activity.chat_display_name}</div>
-                  <div className="activity-action-name">{activity.activity_type}</div>
-                </div>
+            {filteredActions.length === 0 ? (
+              <div className="no-actions-message">
+                <p>No hay acciones creadas para este curso.</p>
+                <p>Haz clic en "Añadir acción" para crear la primera.</p>
               </div>
-            ))}
+            ) : (
+              filteredActions.map((action) => (
+                <div
+                  key={action.id}
+                  className="activity-card"
+                  onClick={() => handleEditAction(action.id)}
+                >
+                  <div className="activity-main-info">
+                    <div className="activity-unit-header">UNIDAD {action.numero_unidad}</div>
+                    <div className="activity-section-header">SECCIÓN {action.apartado}</div>
+                    <div className="activity-number-header">ACTIVIDAD {action.numero_actividad}</div>
+                  </div>
+                  <div className="activity-secondary-info">
+                    <div className="activity-agent-name">{action.nombre_chat}</div>
+                    <div className="activity-action-name">{action.tipo_actividad.replace(/_/g, ' ')}</div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      {/* Modal del formulario de actividad */}
+      {/* Modal del formulario de acción */}
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <button className="btn-close-circular" onClick={() => setShowModal(false)}>
+              <button className="btn-close-circular" onClick={handleCloseModal}>
                 <X size={20} />
               </button>
             </div>
             <div className="modal-body-scrollable">
               <ActivityForm
-                courseId={parseInt(courseId)}
-                activityId={selectedActivityId}
+                courseId={courseId}
+                activityId={selectedActionId}
               />
             </div>
           </div>
