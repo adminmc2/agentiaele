@@ -30,13 +30,19 @@ import {
   History,
   Send,
   Trash2,
-  Download,
+  Save,
   Bot,
   User,
   Loader2,
   Check
 } from 'lucide-react';
 import { createAction, updateAction, getActionById, validateActionData } from '../../services/actionService';
+import {
+  getConversationsByAction,
+  createConversation,
+  deleteConversation,
+  generateConversationTitle
+} from '../../services/testConversationService';
 import { ACTIVITY_TYPES, ACTIVITY_STRUCTURES, MOMENTO1_AGENTS, CONTENT_BLOCK_TYPES } from '../../config/database';
 import CustomSelect from '../../components/CustomSelect';
 import ContentBlock from '../../components/ContentBlock';
@@ -88,6 +94,7 @@ const ActivityForm = ({ activityId, courseId }) => {
   // Estado para historial
   const [conversations, setConversations] = useState([]);
   const [expandedConversation, setExpandedConversation] = useState(null);
+  const [loadingConversations, setLoadingConversations] = useState(false);
 
   const [formData, setFormData] = useState({
     curso_id: courseId || '',
@@ -115,8 +122,23 @@ const ActivityForm = ({ activityId, courseId }) => {
   useEffect(() => {
     if (isEditMode) {
       loadActivity();
+      loadConversations();
     }
   }, [id]);
+
+  // Cargar conversaciones de la base de datos
+  const loadConversations = async () => {
+    if (!id) return;
+    try {
+      setLoadingConversations(true);
+      const data = await getConversationsByAction(id);
+      setConversations(data);
+    } catch (err) {
+      console.error('Error cargando conversaciones:', err);
+    } finally {
+      setLoadingConversations(false);
+    }
+  };
 
   const loadActivity = async () => {
     try {
@@ -315,21 +337,31 @@ const ActivityForm = ({ activityId, courseId }) => {
     }
   };
 
-  // Guardar conversación en historial
-  const handleSaveConversation = () => {
+  // Guardar conversación en historial (base de datos)
+  const handleSaveConversation = async () => {
     if (chatMessages.length === 0) return;
+    if (!id) {
+      alert('Debes guardar la acción primero antes de guardar conversaciones');
+      return;
+    }
 
-    const title = prompt('Título de la conversación:', `Prueba ${new Date().toLocaleDateString()}`);
+    const defaultTitle = generateConversationTitle(chatMessages[0]?.content) || `Prueba ${new Date().toLocaleDateString()}`;
+    const title = prompt('Título de la conversación:', defaultTitle);
+
     if (title) {
-      const newConversation = {
-        id: Date.now(),
-        title,
-        messages: [...chatMessages],
-        prompt: testPrompt,
-        createdAt: new Date().toISOString()
-      };
-      setConversations(prev => [newConversation, ...prev]);
-      alert('Conversación guardada');
+      try {
+        const newConversation = await createConversation({
+          accion_id: id,
+          title,
+          prompt_used: testPrompt,
+          messages: chatMessages
+        });
+        setConversations(prev => [newConversation, ...prev]);
+        alert('Conversación guardada');
+      } catch (err) {
+        console.error('Error guardando conversación:', err);
+        alert('Error al guardar conversación: ' + err.message);
+      }
     }
   };
 
@@ -1263,7 +1295,7 @@ const ActivityForm = ({ activityId, courseId }) => {
                   disabled={chatMessages.length === 0}
                   title="Guardar conversación"
                 >
-                  <Download size={18} />
+                  <Save size={18} />
                 </button>
               </div>
             </div>
@@ -1275,32 +1307,45 @@ const ActivityForm = ({ activityId, courseId }) => {
                   <p>Escribe un mensaje para probar el prompt</p>
                 </div>
               ) : (
-                chatMessages.map(message => (
-                  <div key={message.id} className={`message ${message.role} ${message.isError ? 'error' : ''}`}>
-                    <div className="message-avatar">
-                      {message.role === 'user' ? <User size={20} /> : <Bot size={20} />}
-                    </div>
-                    <div className="message-content">
-                      <div className="message-header">
-                        <span className="message-sender">
-                          {message.role === 'user' ? 'Tú' : 'IA'}
-                        </span>
-                        <span className="message-time">
-                          {new Date(message.timestamp).toLocaleTimeString('es-ES', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
+                chatMessages.map(message => {
+                  // Obtener el primer agente activo para mostrar su icono
+                  const activeAgentKey = Object.entries(formData.agentes_disponibles)
+                    .find(([_, activo]) => activo)?.[0];
+                  const activeAgent = activeAgentKey ? MOMENTO1_AGENTS[activeAgentKey] : null;
+
+                  return (
+                    <div key={message.id} className={`message ${message.role} ${message.isError ? 'error' : ''}`}>
+                      <div className="message-avatar">
+                        {message.role === 'user' ? (
+                          <span className="avatar-initials">AC</span>
+                        ) : (
+                          activeAgent?.icon ? (
+                            <img src={activeAgent.icon} alt={activeAgent.name} className="avatar-agent-icon" />
+                          ) : (
+                            <Bot size={20} />
+                          )
+                        )}
                       </div>
-                      <p className="message-text">{message.content}</p>
+                      <div className="message-content">
+                        <p className="message-text">{message.content}</p>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
               {isSending && (
                 <div className="message assistant typing">
                   <div className="message-avatar">
-                    <Bot size={20} />
+                    {(() => {
+                      const activeAgentKey = Object.entries(formData.agentes_disponibles)
+                        .find(([_, activo]) => activo)?.[0];
+                      const activeAgent = activeAgentKey ? MOMENTO1_AGENTS[activeAgentKey] : null;
+                      return activeAgent?.icon ? (
+                        <img src={activeAgent.icon} alt={activeAgent.name} className="avatar-agent-icon" />
+                      ) : (
+                        <Bot size={20} />
+                      );
+                    })()}
                   </div>
                   <div className="message-content">
                     <div className="typing-indicator">
@@ -1342,7 +1387,12 @@ const ActivityForm = ({ activityId, courseId }) => {
       {/* PESTAÑA: HISTÓRICO */}
       {activeTab === 'history' && (
         <div className="history-container">
-          {conversations.length === 0 ? (
+          {loadingConversations ? (
+            <div className="history-empty">
+              <Loader2 size={48} className="spinning" />
+              <p>Cargando conversaciones...</p>
+            </div>
+          ) : conversations.length === 0 ? (
             <div className="history-empty">
               <History size={64} />
               <h3>No hay conversaciones guardadas</h3>
@@ -1359,22 +1409,28 @@ const ActivityForm = ({ activityId, courseId }) => {
                     <div className="conversation-info">
                       <h4>{conv.title}</h4>
                       <div className="conversation-meta">
-                        <span>{new Date(conv.createdAt).toLocaleDateString('es-ES', {
+                        <span>{new Date(conv.created_at).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
                         })}</span>
-                        <span>{conv.messages.length} mensajes</span>
+                        <span>{(conv.messages || []).length} mensajes</span>
                       </div>
                     </div>
                     <button
                       className="btn-delete-conv"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
                         if (window.confirm('¿Eliminar esta conversación?')) {
-                          setConversations(prev => prev.filter(c => c.id !== conv.id));
+                          try {
+                            await deleteConversation(conv.id);
+                            setConversations(prev => prev.filter(c => c.id !== conv.id));
+                          } catch (err) {
+                            console.error('Error eliminando conversación:', err);
+                            alert('Error al eliminar conversación');
+                          }
                         }
                       }}
                     >

@@ -10,7 +10,6 @@ import {
   MessageSquare,
   Save,
   Trash2,
-  User,
   Bot,
   Loader
 } from 'lucide-react';
@@ -204,23 +203,16 @@ const AgentChatModal = ({ agent, onClose, onSaveConversation }) => {
             >
               <div className="message-avatar">
                 {message.role === 'user' ? (
-                  <User size={20} />
+                  <span className="avatar-initials">AC</span>
                 ) : (
-                  <Bot size={20} />
+                  agent?.icon ? (
+                    <img src={agent.icon} alt={agent.name} className="avatar-agent-icon" />
+                  ) : (
+                    <Bot size={20} />
+                  )
                 )}
               </div>
               <div className="message-content">
-                <div className="message-header">
-                  <span className="message-sender">
-                    {message.role === 'user' ? 'Tú' : agent.name}
-                  </span>
-                  <span className="message-time">
-                    {new Date(message.timestamp).toLocaleTimeString('es-ES', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </div>
                 <p className="message-text">{message.content}</p>
               </div>
             </div>
@@ -229,7 +221,11 @@ const AgentChatModal = ({ agent, onClose, onSaveConversation }) => {
           {isSending && (
             <div className="message assistant typing">
               <div className="message-avatar">
-                <Bot size={20} />
+                {agent?.icon ? (
+                  <img src={agent.icon} alt={agent.name} className="avatar-agent-icon" />
+                ) : (
+                  <Bot size={20} />
+                )}
               </div>
               <div className="message-content">
                 <div className="typing-indicator">

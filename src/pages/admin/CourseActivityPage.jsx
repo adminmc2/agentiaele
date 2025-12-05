@@ -256,8 +256,8 @@ const CourseActivityPage = () => {
           <div className="activities-list">
             {filteredActions.length === 0 ? (
               <div className="no-actions-message">
-                <p>No hay acciones creadas para este curso.</p>
-                <p>Haz clic en "Añadir acción" para crear la primera.</p>
+                <p>📚 Próximamente disponible</p>
+                <p>Este curso estará listo pronto. Mientras tanto, puedes añadir acciones haciendo clic en "Añadir acción".</p>
               </div>
             ) : (
               filteredActions.map((action) => (
