@@ -72,7 +72,11 @@ export async function handler(event, context) {
         };
       } else {
         // En producción: usar Netlify Blobs
-        const store = getStore('portadas');
+        const store = getStore({
+          name: 'portadas',
+          siteID: process.env.SITE_ID || context.siteId,
+          token: process.env.NETLIFY_TOKEN || context.token,
+        });
         await store.set(filename, imageBuffer, {
           metadata: {
             contentType: contentType,
@@ -139,7 +143,11 @@ export async function handler(event, context) {
         };
       } else {
         // En producción: usar Netlify Blobs
-        const store = getStore('portadas');
+        const store = getStore({
+          name: 'portadas',
+          siteID: process.env.SITE_ID || context.siteId,
+          token: process.env.NETLIFY_TOKEN || context.token,
+        });
         const blob = await store.get(filename, { type: 'arrayBuffer' });
 
         if (!blob) {
@@ -193,7 +201,11 @@ export async function handler(event, context) {
         };
       } else {
         // En producción: usar Netlify Blobs
-        const store = getStore('portadas');
+        const store = getStore({
+          name: 'portadas',
+          siteID: process.env.SITE_ID || context.siteId,
+          token: process.env.NETLIFY_TOKEN || context.token,
+        });
         await store.delete(filename);
 
         return {
