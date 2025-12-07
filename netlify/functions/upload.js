@@ -7,6 +7,7 @@
 import { getStore } from '@netlify/blobs';
 import fs from 'fs';
 import path from 'path';
+import process from 'process';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,7 +22,7 @@ const isLocal = () => process.env.NETLIFY_DEV === 'true';
 // Directorio local para desarrollo
 const LOCAL_UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 
-export async function handler(event, context) {
+export async function handler(event) {
   // Manejar OPTIONS para CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -74,8 +75,8 @@ export async function handler(event, context) {
         // En producción: usar Netlify Blobs
         const store = getStore({
           name: 'portadas',
-          siteID: process.env.SITE_ID || context.siteId,
-          token: process.env.NETLIFY_TOKEN || context.token,
+          siteID: process.env.SITE_ID,
+          token: process.env.NETLIFY_BLOBS_CONTEXT,
         });
         await store.set(filename, imageBuffer, {
           metadata: {
@@ -145,8 +146,8 @@ export async function handler(event, context) {
         // En producción: usar Netlify Blobs
         const store = getStore({
           name: 'portadas',
-          siteID: process.env.SITE_ID || context.siteId,
-          token: process.env.NETLIFY_TOKEN || context.token,
+          siteID: process.env.SITE_ID,
+          token: process.env.NETLIFY_BLOBS_CONTEXT,
         });
         const blob = await store.get(filename, { type: 'arrayBuffer' });
 
@@ -203,8 +204,8 @@ export async function handler(event, context) {
         // En producción: usar Netlify Blobs
         const store = getStore({
           name: 'portadas',
-          siteID: process.env.SITE_ID || context.siteId,
-          token: process.env.NETLIFY_TOKEN || context.token,
+          siteID: process.env.SITE_ID,
+          token: process.env.NETLIFY_BLOBS_CONTEXT,
         });
         await store.delete(filename);
 
