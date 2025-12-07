@@ -1,5 +1,7 @@
 import { neon } from '@neondatabase/serverless';
-import { readFileSync } from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -12,63 +14,62 @@ const sql = neon(connectionString);
 
 async function runMigration() {
   try {
-    console.log('🚀 Ejecutando migración: courses table\n');
+    console.log('🚀 Ejecutando migración: propuestas_agentes table\n');
 
-    // 1. Crear tabla courses
-    console.log('📝 Creando tabla courses...');
+    // 1. Crear tabla propuestas_agentes
+    console.log('📝 Creando tabla propuestas_agentes...');
     await sql`
-      CREATE TABLE IF NOT EXISTS courses (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        book_code VARCHAR(50) UNIQUE NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        company VARCHAR(100),
-        level VARCHAR(10) CHECK (level IN ('A1', 'A2', 'B1', 'B2', 'C1', 'C2')),
-        units INTEGER,
-        lessons_per_unit INTEGER,
-        project_days INTEGER,
-        project_hours INTEGER,
-        cover_image TEXT,
-        status VARCHAR(50) DEFAULT 'Por empezar',
-        progress INTEGER DEFAULT 0 CHECK (progress BETWEEN 0 AND 100),
+      CREATE TABLE IF NOT EXISTS propuestas_agentes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        nombre VARCHAR(100) NOT NULL,
+        apellidos VARCHAR(150) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        nivel_estudiantes VARCHAR(50) NOT NULL,
+        nombre_agente VARCHAR(150) NOT NULL,
+        descripcion_agente TEXT NOT NULL,
+        objetivo TEXT NOT NULL,
+        ejemplo_uso TEXT NOT NULL,
+        estado VARCHAR(50) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'en_revision', 'aprobado', 'rechazado', 'completado')),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `;
-    console.log('✅ Tabla courses creada');
+    console.log('✅ Tabla propuestas_agentes creada');
 
     // 2. Crear índices
     console.log('📝 Creando índices...');
-    await sql`CREATE INDEX IF NOT EXISTS idx_courses_book_code ON courses(book_code)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_courses_level ON courses(level)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_courses_status ON courses(status)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_propuestas_email ON propuestas_agentes(email)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_propuestas_estado ON propuestas_agentes(estado)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_propuestas_created_at ON propuestas_agentes(created_at DESC)`;
     console.log('✅ Índices creados');
 
-    // 3. Crear trigger
-    console.log('📝 Creando trigger...');
+    // 3. Crear función para trigger
+    console.log('📝 Creando función update_propuestas_updated_at...');
     await sql`
-      CREATE TRIGGER update_courses_updated_at
-        BEFORE UPDATE ON courses
+      CREATE OR REPLACE FUNCTION update_propuestas_updated_at()
+      RETURNS TRIGGER AS $$
+      BEGIN
+        NEW.updated_at = NOW();
+        RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql
+    `;
+    console.log('✅ Función creada');
+
+    // 4. Crear trigger
+    console.log('📝 Creando trigger...');
+    await sql`DROP TRIGGER IF EXISTS propuestas_updated_at_trigger ON propuestas_agentes`;
+    await sql`
+      CREATE TRIGGER propuestas_updated_at_trigger
+        BEFORE UPDATE ON propuestas_agentes
         FOR EACH ROW
-        EXECUTE FUNCTION update_updated_at_column()
+        EXECUTE FUNCTION update_propuestas_updated_at()
     `;
     console.log('✅ Trigger creado');
 
-    // 4. Insertar datos iniciales
-    console.log('📝 Insertando cursos iniciales...');
-    await sql`
-      INSERT INTO courses (book_code, title, company, level, units, lessons_per_unit, project_days, project_hours, cover_image, status, progress)
-      VALUES
-        ('EM1', 'Español en marcha 1', 'SGEL', 'A1', 12, 15, 20, 20, '/portada.jpg', 'En proceso', 60),
-        ('EM2', 'Español en marcha 2', 'SGEL', 'A2', 12, 20, 30, 30, '/em2.jpg', 'Por empezar', 0),
-        ('EM3', 'Español en marcha 3', 'SGEL', 'B1', 12, 18, 25, 25, '/em3.jpg', 'Finalizado', 100),
-        ('EM4', 'Español en marcha 4', 'SGEL', 'B2', 12, 25, 35, 35, '/em4.jpeg', 'Por empezar', 0)
-      ON CONFLICT (book_code) DO NOTHING
-    `;
-    console.log('✅ Cursos insertados');
-
     // 5. Verificar
-    const courses = await sql`SELECT COUNT(*) as count FROM courses`;
-    console.log(`\n✅ Migración completada! ${courses[0].count} cursos en la base de datos`);
+    const propuestas = await sql`SELECT COUNT(*) as count FROM propuestas_agentes`;
+    console.log(`\n✅ Migración completada! ${propuestas[0].count} propuestas en la base de datos`);
 
   } catch (error) {
     console.error('❌ Error ejecutando migración:', error.message);

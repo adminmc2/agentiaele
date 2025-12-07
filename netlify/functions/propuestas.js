@@ -16,7 +16,7 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-export async function handler(event, context) {
+export async function handler(event) {
   // Manejar preflight CORS
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
@@ -93,7 +93,7 @@ export async function handler(event, context) {
         data.ejemplo_uso.trim()
       ];
 
-      const result = await sql(query, values);
+      const result = await sql.query(query, values);
 
       return {
         statusCode: 201,
@@ -122,7 +122,7 @@ export async function handler(event, context) {
 
       query += ' ORDER BY created_at DESC';
 
-      const result = await sql(query, values);
+      const result = await sql.query(query, values);
 
       return {
         statusCode: 200,
@@ -137,7 +137,7 @@ export async function handler(event, context) {
     if (method === 'GET' && path.startsWith('/')) {
       const id = path.substring(1);
 
-      const result = await sql(
+      const result = await sql.query(
         'SELECT * FROM propuestas_agentes WHERE id = $1',
         [id]
       );
@@ -176,7 +176,7 @@ export async function handler(event, context) {
         };
       }
 
-      const result = await sql(
+      const result = await sql.query(
         'UPDATE propuestas_agentes SET estado = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [data.estado, id]
       );
@@ -206,7 +206,7 @@ export async function handler(event, context) {
     if (method === 'DELETE' && path.startsWith('/')) {
       const id = path.substring(1);
 
-      const result = await sql(
+      const result = await sql.query(
         'DELETE FROM propuestas_agentes WHERE id = $1 RETURNING *',
         [id]
       );
