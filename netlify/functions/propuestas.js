@@ -3,14 +3,10 @@
 // ========================================
 // API para crear y gestionar propuestas desde "Sueña con tu agente"
 
-import pg from 'pg';
-const { Pool } = pg;
+import { neon } from '@neondatabase/serverless';
 
 // Configurar conexión a Neon
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+const sql = neon(process.env.DATABASE_URL);
 
 // Headers CORS
 const headers = {
@@ -97,7 +93,7 @@ export async function handler(event, context) {
         data.ejemplo_uso.trim()
       ];
 
-      const result = await pool.query(query, values);
+      const result = await sql(query, values);
 
       return {
         statusCode: 201,
@@ -105,7 +101,7 @@ export async function handler(event, context) {
         body: JSON.stringify({
           success: true,
           message: 'Propuesta creada exitosamente',
-          data: result.rows[0]
+          data: result[0]
         })
       };
     }
@@ -126,12 +122,12 @@ export async function handler(event, context) {
 
       query += ' ORDER BY created_at DESC';
 
-      const result = await pool.query(query, values);
+      const result = await sql(query, values);
 
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(result.rows)
+        body: JSON.stringify(result)
       };
     }
 
@@ -141,12 +137,12 @@ export async function handler(event, context) {
     if (method === 'GET' && path.startsWith('/')) {
       const id = path.substring(1);
 
-      const result = await pool.query(
+      const result = await sql(
         'SELECT * FROM propuestas_agentes WHERE id = $1',
         [id]
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return {
           statusCode: 404,
           headers,
@@ -157,7 +153,7 @@ export async function handler(event, context) {
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify(result.rows[0])
+        body: JSON.stringify(result[0])
       };
     }
 
@@ -180,12 +176,12 @@ export async function handler(event, context) {
         };
       }
 
-      const result = await pool.query(
+      const result = await sql(
         'UPDATE propuestas_agentes SET estado = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
         [data.estado, id]
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return {
           statusCode: 404,
           headers,
@@ -199,7 +195,7 @@ export async function handler(event, context) {
         body: JSON.stringify({
           success: true,
           message: 'Propuesta actualizada',
-          data: result.rows[0]
+          data: result[0]
         })
       };
     }
@@ -210,12 +206,12 @@ export async function handler(event, context) {
     if (method === 'DELETE' && path.startsWith('/')) {
       const id = path.substring(1);
 
-      const result = await pool.query(
+      const result = await sql(
         'DELETE FROM propuestas_agentes WHERE id = $1 RETURNING *',
         [id]
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return {
           statusCode: 404,
           headers,
