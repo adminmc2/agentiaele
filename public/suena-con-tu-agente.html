@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sueña con tu agente - AgentiaELE</title>
+
+  <!-- Google Fonts: Dosis e Inconsolata -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@200;300;400;500;600;700;800&family=Inconsolata:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Dosis', sans-serif;
+      background: linear-gradient(135deg, #ffb8a0 0%, #ffd4c4 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      font-weight: 300;
+      opacity: 0.95;
+    }
+
+    .form-container {
+      padding: 30px 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-family: 'Inconsolata', monospace;
+      font-size: 0.95rem;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #ffb8a0;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #ffb8a0 0%, #ffd4c4 100%);
+      color: #5a3a2f;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Dosis', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 184, 160, 0.4);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .required {
+      color: #ff9977;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: #ff9977;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .header p {
+        font-size: 1rem;
+      }
+
+      .form-container {
+        padding: 20px 15px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      textarea,
+      select {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Sueña con tu agente</h1>
+      <p>Nosotros te lo creamos</p>
+    </div>
+
+    <div class="form-container">
+      <div id="message" class="message"></div>
+
+      <form id="propuestaForm">
+        <!-- Datos del profesor -->
+        <div class="form-group">
+          <label for="nombre">Nombre <span class="required">*</span></label>
+          <input type="text" id="nombre" name="nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="apellidos">Apellidos <span class="required">*</span></label>
+          <input type="text" id="apellidos" name="apellidos" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email <span class="required">*</span></label>
+          <input type="email" id="email" name="email" required>
+        </div>
+
+        <!-- Contexto educativo -->
+        <div class="form-group">
+          <label for="nivel_estudiantes">Nivel de tus estudiantes <span class="required">*</span></label>
+          <select id="nivel_estudiantes" name="nivel_estudiantes" required>
+            <option value="">Selecciona un nivel</option>
+            <option value="A1">A1 - Principiante</option>
+            <option value="A2">A2 - Elemental</option>
+            <option value="B1">B1 - Intermedio</option>
+            <option value="B2">B2 - Intermedio Alto</option>
+            <option value="C1">C1 - Avanzado</option>
+            <option value="C2">C2 - Maestría</option>
+            <option value="Mixto">Niveles mixtos</option>
+          </select>
+        </div>
+
+        <!-- Propuesta del agente -->
+        <div class="form-group">
+          <label for="nombre_agente">Nombre del agente <span class="required">*</span></label>
+          <input type="text" id="nombre_agente" name="nombre_agente" placeholder="Ej: Asistente de Gramática Interactivo" required>
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion_agente">Descripción del agente <span class="required">*</span></label>
+          <textarea id="descripcion_agente" name="descripcion_agente" placeholder="Describe cómo sería tu agente ideal..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="objetivo">Objetivo pedagógico <span class="required">*</span></label>
+          <textarea id="objetivo" name="objetivo" placeholder="¿Qué objetivo educativo quieres alcanzar con este agente?" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="ejemplo_uso">Ejemplo de uso <span class="required">*</span></label>
+          <textarea id="ejemplo_uso" name="ejemplo_uso" placeholder="Describe un caso concreto de cómo usarías este agente en clase..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          Enviar propuesta
+        </button>
+      </form>
+    </div>
+
+    <div class="footer">
+      <p>Creado con <a href="https://agentiaele.netlify.app">AgentiaELE</a></p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('propuestaForm');
+    const messageDiv = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.className = `message ${type} show`;
+      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      setTimeout(() => {
+        messageDiv.classList.remove('show');
+      }, 5000);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Deshabilitar botón
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+
+      // Recoger datos del formulario
+      const formData = {
+        nombre: document.getElementById('nombre').value.trim(),
+        apellidos: document.getElementById('apellidos').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        nivel_estudiantes: document.getElementById('nivel_estudiantes').value,
+        nombre_agente: document.getElementById('nombre_agente').value.trim(),
+        descripcion_agente: document.getElementById('descripcion_agente').value.trim(),
+        objetivo: document.getElementById('objetivo').value.trim(),
+        ejemplo_uso: document.getElementById('ejemplo_uso').value.trim()
+      };
+
+      try {
+        const response = await fetch('/.netlify/functions/propuestas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage('¡Propuesta enviada con éxito! Nos pondremos en contacto contigo pronto.', 'success');
+          form.reset();
+        } else {
+          showMessage(data.error || 'Error al enviar la propuesta. Inténtalo de nuevo.', 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error de conexión. Por favor, verifica tu conexión a internet.', 'error');
+      } finally {
+        // Rehabilitar botón
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar propuesta';
+      }
+    });
+  </script>
+</body>
+</html>
