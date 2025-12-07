@@ -15,15 +15,11 @@ const corsHeaders = {
 };
 
 // Detectar si estamos en desarrollo local
-const isLocal = process.env.NETLIFY_DEV === 'true' || !process.env.NETLIFY;
+// En producción, CONTEXT.deployId existe
+const isLocal = () => process.env.NETLIFY_DEV === 'true';
 
 // Directorio local para desarrollo
 const LOCAL_UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
-
-// Asegurar que existe el directorio en desarrollo
-if (isLocal && !fs.existsSync(LOCAL_UPLOAD_DIR)) {
-  fs.mkdirSync(LOCAL_UPLOAD_DIR, { recursive: true });
-}
 
 export async function handler(event, context) {
   // Manejar OPTIONS para CORS
@@ -57,8 +53,11 @@ export async function handler(event, context) {
       const extension = contentType.split('/')[1] || 'png';
       const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
 
-      if (isLocal) {
+      if (isLocal()) {
         // En desarrollo: guardar en el sistema de archivos
+        if (!fs.existsSync(LOCAL_UPLOAD_DIR)) {
+          fs.mkdirSync(LOCAL_UPLOAD_DIR, { recursive: true });
+        }
         const filePath = path.join(LOCAL_UPLOAD_DIR, filename);
         fs.writeFileSync(filePath, imageBuffer);
 
@@ -106,7 +105,7 @@ export async function handler(event, context) {
         };
       }
 
-      if (isLocal) {
+      if (isLocal()) {
         // En desarrollo: leer del sistema de archivos
         const filePath = path.join(LOCAL_UPLOAD_DIR, filename);
 
@@ -179,7 +178,7 @@ export async function handler(event, context) {
         };
       }
 
-      if (isLocal) {
+      if (isLocal()) {
         // En desarrollo: eliminar del sistema de archivos
         const filePath = path.join(LOCAL_UPLOAD_DIR, filename);
 

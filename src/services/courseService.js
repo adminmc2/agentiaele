@@ -152,6 +152,8 @@ export const getCoursesStats = async () => {
  */
 export const uploadPortada = async (file) => {
   try {
+    console.log('Uploading file:', file.name, file.type, file.size);
+
     const response = await fetch(`${API_BASE_URL}/upload`, {
       method: 'POST',
       headers: {
@@ -160,9 +162,18 @@ export const uploadPortada = async (file) => {
       body: file,
     });
 
+    console.log('Upload response status:', response.status);
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Error subiendo imagen');
+      const errorText = await response.text();
+      console.error('Upload error response:', errorText);
+
+      try {
+        const errorJson = JSON.parse(errorText);
+        throw new Error(errorJson.error || `Error subiendo imagen (${response.status})`);
+      } catch (parseError) {
+        throw new Error(`Error subiendo imagen: ${response.status} - ${errorText.substring(0, 100)}`);
+      }
     }
 
     return await response.json();
