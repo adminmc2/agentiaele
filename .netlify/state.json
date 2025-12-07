@@ -11,10 +11,11 @@
 				"name": "Madrid"
 			},
 			"timezone": "Europe/Madrid",
-			"latitude": 40.4097,
-			"longitude": -3.7157,
-			"postalCode": "28005"
+			"latitude": 40.43,
+			"longitude": -3.6691,
+			"postalCode": "28028"
 		},
-		"timestamp": 1763460941699
-	}
+		"timestamp": 1765084464579
+	},
+	"liveTunnelSlug": "7106a1a7"
 }

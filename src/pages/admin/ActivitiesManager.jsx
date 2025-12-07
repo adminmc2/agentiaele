@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { MoreVertical, ArrowUpRight, Plus, X, Upload, BookMarked, Building2, FolderTree, Hash, CalendarDays, Timer, GraduationCap, Key, Search, Filter } from 'lucide-react';
 import CustomSelect from '../../components/CustomSelect';
 import { getAllCourses, createCourse, updateCourse, validateCourseData, uploadPortada } from '../../services/courseService';
+import { getPortadaUrl } from '../../utils/imageHelpers';
 import './ActivitiesManager.css';
 
 const ActivitiesManager = () => {
@@ -367,7 +368,7 @@ const ActivitiesManager = () => {
               <div className="card-row-1">
                 {/* Imagen de portada */}
                 <div className="card-cover">
-                  <img src={curso.portada || '/portada.jpg'} alt={curso.nombre} />
+                  <img src={getPortadaUrl(curso.portada)} alt={curso.nombre} />
                 </div>
 
                 {/* Columna derecha con Parte 1 y Parte 2 */}
@@ -580,7 +581,7 @@ const ActivitiesManager = () => {
                       </label>
                     ) : (
                       <div className="image-preview-compact">
-                        <img src={typeof formData.portada === 'string' ? formData.portada : URL.createObjectURL(formData.portada)} alt="Portada" />
+                        <img src={typeof formData.portada === 'string' ? getPortadaUrl(formData.portada) : URL.createObjectURL(formData.portada)} alt="Portada" />
                         <button type="button" onClick={() => setFormData(prev => ({ ...prev, portada: null }))} className="btn-close-compact remove-btn-compact">
                           <X size={14} />
                         </button>
