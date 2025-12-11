@@ -1465,4 +1465,3 @@ const ActivityForm = ({ activityId, courseId }) => {
 };
 
 export default ActivityForm;
-que 
