@@ -9,6 +9,55 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [0.7.1] - Formulario "Sueña con tu agente" + Correcciones (Enero 2026) 💭
+
+### ✨ Agregado
+
+#### **Formulario "Sueña con tu agente"** 💭
+- **Botón en LoginPage**: Nuevo botón "Sueña con tu agente" en la página de inicio
+  - Ubicación: Debajo del texto "Hay gente para todo y agentes también"
+  - Diseño: Fondo naranja-rosa (#ffb8a0) con texto blanco
+  - Hover: Fondo más oscuro (#ffa88c) con sombra
+  - Abre modal con formulario para proponer nuevos agentes
+- **Modal responsive**: Formulario incrustado en iframe dentro de modal
+  - Cierre al hacer click fuera o en botón X
+  - Animación de entrada suave
+  - Máximo 650px de ancho, 85vh de altura
+- **Tabla `propuestas_agentes`**: Nueva tabla en base de datos para almacenar propuestas
+  - Campos: nombre, apellidos, email, nivel_estudiantes, nombre_agente
+  - Campos adicionales: descripcion_agente, objetivo, ejemplo_uso, estado
+  - Estados: pendiente, en_revision, aprobado, rechazado, completado
+  - Triggers para actualizar `updated_at` automáticamente
+- **API `/api/propuestas`**: Endpoint para gestionar propuestas de agentes
+  - POST: Crear nueva propuesta
+  - GET: Listar propuestas (para admin)
+
+### 🐛 Corregido
+
+#### **Errores críticos de producción**
+- **`ReferenceError: que is not defined`**: Eliminado texto suelto 'que' en ActivityForm.jsx que causaba error JS
+- **Error de Neon `sql is not a function`**: Corregido uso de `sql.query()` en propuestas.js para queries parametrizadas
+- **Imagen EM1 no mostraba**: Creado archivo `em1.jpg` en public/ y actualizada BD
+- **Tabla propuestas no existía**: Creada función setup-db.js para migración en producción
+
+#### **Git y deployment**
+- **Git push fallaba**: Cambiado remote de HTTPS a SSH para push automático
+
+### 📁 Archivos Nuevos
+- `netlify/functions/propuestas.js` - API de propuestas de agentes
+- `netlify/functions/setup-db.js` - Función de migración para producción
+- `public/suena-con-tu-agente.html` - Formulario HTML de propuestas
+- `public/em1.jpg` - Imagen de portada para curso EM1
+- `run-migration.js` - Script de migración local
+- `create-propuestas-table.mjs` - Script alternativo de migración
+
+### 📁 Archivos Modificados
+- `src/pages/LoginPage.jsx` - Añadido botón y modal "Sueña con tu agente"
+- `src/pages/LoginPage.css` - Estilos para botón y modal
+- `src/pages/admin/ActivityForm.jsx` - Eliminado texto suelto que causaba error
+
+---
+
 ## [0.7.0] - Integración Base de Datos Neon + Netlify Blobs (Noviembre 2025) 🗄️
 
 ### ✨ Agregado
