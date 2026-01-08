@@ -11,6 +11,7 @@ const LoginPage = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [showDreamModal, setShowDreamModal] = useState(false);
   const stageRef = useRef(null);
 
   // Initialize creatures animation
@@ -139,7 +140,7 @@ const LoginPage = ({ onLogin }) => {
         <div className="press-text">
           <p className="press-line-1">Despierta al agente que llevas dentro<br />y únete al equipo</p>
           <p className="press-line-2">— Hay gente para todo y agentes también —</p>
-          <a href="/suena-con-tu-agente.html" className="dream-agent-link">Sueña con tu agente</a>
+          <button onClick={() => setShowDreamModal(true)} className="dream-agent-link">Sueña con tu agente</button>
         </div>
         <div className="awake-creatures-hint">
           <p className="hint-text">
@@ -159,6 +160,20 @@ const LoginPage = ({ onLogin }) => {
           </p>
         </div>
       </div>
+
+      {/* Modal Sueña con tu agente */}
+      {showDreamModal && (
+        <div className="dream-modal-overlay" onClick={() => setShowDreamModal(false)}>
+          <div className="dream-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="dream-modal-close" onClick={() => setShowDreamModal(false)}>×</button>
+            <iframe
+              src="/suena-con-tu-agente.html"
+              title="Sueña con tu agente"
+              className="dream-modal-iframe"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
