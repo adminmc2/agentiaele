@@ -295,15 +295,17 @@ const LoginPage = ({ onLogin }) => {
                   fontFamily: 'Dosis, sans-serif',
                   fontSize: '1.6rem',
                   fontWeight: 700,
-                  margin: '0 0 6px 0'
+                  margin: '0 0 6px 0',
+                  color: '#ffffff'
                 }}>
                   Sueña con tu agente
                 </h2>
                 <p style={{
                   fontFamily: 'Dosis, sans-serif',
                   fontSize: '0.95rem',
-                  opacity: 0.8,
-                  margin: 0
+                  opacity: 0.9,
+                  margin: 0,
+                  color: '#ffffff'
                 }}>
                   Nosotros te lo creamos
                 </p>
@@ -509,7 +511,7 @@ const LoginPage = ({ onLogin }) => {
                     name="descripcion_agente"
                     value={propuestaForm.descripcion_agente}
                     onChange={handlePropuestaChange}
-                    placeholder="Describe cómo sería tu agente ideal..."
+                    placeholder="Ej: Un asistente que ayude a practicar la conjugación de verbos irregulares en presente. Debería corregir errores de forma amable, dar pistas cuando el estudiante se equivoque y proponer ejercicios de dificultad progresiva."
                     required
                     style={{
                       width: '100%',
@@ -565,7 +567,7 @@ const LoginPage = ({ onLogin }) => {
                     name="ejemplo_uso"
                     value={propuestaForm.ejemplo_uso}
                     onChange={handlePropuestaChange}
-                    placeholder="Describe un caso concreto de uso en clase..."
+                    placeholder="Ej: En una clase de B1, después de explicar el pretérito indefinido, los estudiantes interactúan con el agente para practicar. El agente les propone completar frases como 'Ayer yo (comer) paella' y les da feedback inmediato."
                     required
                     style={{
                       width: '100%',
