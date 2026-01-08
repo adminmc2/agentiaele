@@ -139,6 +139,7 @@ const LoginPage = ({ onLogin }) => {
         <div className="press-text">
           <p className="press-line-1">Despierta al agente que llevas dentro<br />y únete al equipo</p>
           <p className="press-line-2">— Hay gente para todo y agentes también —</p>
+          <a href="/suena-con-tu-agente.html" className="dream-agent-link">Sueña con tu agente</a>
         </div>
         <div className="awake-creatures-hint">
           <p className="hint-text">

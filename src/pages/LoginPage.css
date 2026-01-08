@@ -361,6 +361,28 @@
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
+.dream-agent-link {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffb8a0;
+  margin-top: 1rem;
+  padding: 8px 20px;
+  border: 2px solid #ffb8a0;
+  border-radius: 25px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  text-shadow: none;
+}
+
+.dream-agent-link:hover {
+  background: #ffb8a0;
+  color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 184, 160, 0.4);
+}
+
 /* Texto informativo para las bolitas que se pueden despertar */
 .awake-creatures-hint {
   position: absolute;
