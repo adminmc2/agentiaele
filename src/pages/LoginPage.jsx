@@ -14,6 +14,55 @@ const LoginPage = ({ onLogin }) => {
   const [showDreamModal, setShowDreamModal] = useState(false);
   const stageRef = useRef(null);
 
+  // Estado del formulario de propuesta
+  const [propuestaForm, setPropuestaForm] = useState({
+    nombre: '',
+    apellidos: '',
+    email: '',
+    nivel_estudiantes: '',
+    nombre_agente: '',
+    descripcion_agente: '',
+    objetivo: '',
+    ejemplo_uso: ''
+  });
+  const [propuestaStatus, setPropuestaStatus] = useState({ type: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handlePropuestaChange = (e) => {
+    const { name, value } = e.target;
+    setPropuestaForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePropuestaSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setPropuestaStatus({ type: '', message: '' });
+
+    try {
+      const response = await fetch('/.netlify/functions/propuestas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(propuestaForm)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPropuestaStatus({ type: 'success', message: '¡Propuesta enviada con éxito! Nos pondremos en contacto contigo pronto.' });
+        setPropuestaForm({
+          nombre: '', apellidos: '', email: '', nivel_estudiantes: '',
+          nombre_agente: '', descripcion_agente: '', objetivo: '', ejemplo_uso: ''
+        });
+      } else {
+        setPropuestaStatus({ type: 'error', message: data.error || 'Error al enviar la propuesta.' });
+      }
+    } catch (err) {
+      setPropuestaStatus({ type: 'error', message: 'Error de conexión. Verifica tu conexión a internet.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Initialize creatures animation
   useEffect(() => {
     if (stageRef.current) {
@@ -166,11 +215,67 @@ const LoginPage = ({ onLogin }) => {
         <div className="dream-modal-overlay" onClick={() => setShowDreamModal(false)}>
           <div className="dream-modal" onClick={(e) => e.stopPropagation()}>
             <button className="dream-modal-close" onClick={() => setShowDreamModal(false)}>×</button>
-            <iframe
-              src="/suena-con-tu-agente.html"
-              title="Sueña con tu agente"
-              className="dream-modal-iframe"
-            />
+            <div className="dream-modal-content">
+              <div className="dream-modal-header">
+                <h2>Sueña con tu agente</h2>
+                <p>Nosotros te lo creamos</p>
+              </div>
+              <form className="dream-form" onSubmit={handlePropuestaSubmit}>
+                {propuestaStatus.message && (
+                  <div className={`dream-message ${propuestaStatus.type}`}>
+                    {propuestaStatus.message}
+                  </div>
+                )}
+                <div className="dream-form-row">
+                  <div className="dream-form-group">
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" value={propuestaForm.nombre} onChange={handlePropuestaChange} required />
+                  </div>
+                  <div className="dream-form-group">
+                    <label>Apellidos *</label>
+                    <input type="text" name="apellidos" value={propuestaForm.apellidos} onChange={handlePropuestaChange} required />
+                  </div>
+                </div>
+                <div className="dream-form-row">
+                  <div className="dream-form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" value={propuestaForm.email} onChange={handlePropuestaChange} required />
+                  </div>
+                  <div className="dream-form-group">
+                    <label>Nivel de tus estudiantes *</label>
+                    <select name="nivel_estudiantes" value={propuestaForm.nivel_estudiantes} onChange={handlePropuestaChange} required>
+                      <option value="">Selecciona un nivel</option>
+                      <option value="A1">A1 - Principiante</option>
+                      <option value="A2">A2 - Elemental</option>
+                      <option value="B1">B1 - Intermedio</option>
+                      <option value="B2">B2 - Intermedio Alto</option>
+                      <option value="C1">C1 - Avanzado</option>
+                      <option value="C2">C2 - Maestría</option>
+                      <option value="Mixto">Niveles mixtos</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="dream-form-group">
+                  <label>Nombre del agente *</label>
+                  <input type="text" name="nombre_agente" value={propuestaForm.nombre_agente} onChange={handlePropuestaChange} placeholder="Ej: Asistente de Gramática Interactivo" required />
+                </div>
+                <div className="dream-form-group">
+                  <label>Descripción del agente *</label>
+                  <textarea name="descripcion_agente" value={propuestaForm.descripcion_agente} onChange={handlePropuestaChange} placeholder="Describe cómo sería tu agente ideal..." required />
+                </div>
+                <div className="dream-form-group">
+                  <label>Objetivo pedagógico *</label>
+                  <textarea name="objetivo" value={propuestaForm.objetivo} onChange={handlePropuestaChange} placeholder="¿Qué objetivo educativo quieres alcanzar?" required />
+                </div>
+                <div className="dream-form-group">
+                  <label>Ejemplo de uso *</label>
+                  <textarea name="ejemplo_uso" value={propuestaForm.ejemplo_uso} onChange={handlePropuestaChange} placeholder="Describe un caso concreto de uso en clase..." required />
+                </div>
+                <button type="submit" className="dream-submit-btn" disabled={submitting}>
+                  {submitting ? 'Enviando...' : 'Enviar propuesta'}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
