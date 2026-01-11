@@ -3,7 +3,8 @@
 // ========================================
 
 import { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X, Fingerprint, UserPlus } from 'lucide-react';
+import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import './LoginPage.css';
 import { initCreatures } from './creatures.js';
 import CustomSelect from '../components/CustomSelect';
@@ -13,8 +14,24 @@ const LoginPage = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [showDreamModal, setShowDreamModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [hasBiometric, setHasBiometric] = useState(false);
   const stageRef = useRef(null);
+
+  // Estado del formulario de registro
+  const [registerForm, setRegisterForm] = useState({
+    codigo: '',
+    nombre: '',
+    institucion: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [registerStep, setRegisterStep] = useState(1); // 1: código, 2: formulario
+  const [registerStatus, setRegisterStatus] = useState({ type: '', message: '' });
+  const [registerLoading, setRegisterLoading] = useState(false);
 
   // Estado del formulario de propuesta
   const [propuestaForm, setPropuestaForm] = useState({
@@ -31,6 +48,33 @@ const LoginPage = ({ onLogin }) => {
   const [propuestaStatus, setPropuestaStatus] = useState({ type: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [emailError, setEmailError] = useState('');
+
+  // Verificar si el email tiene biometría registrada
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('agentia_biometric_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      checkBiometric(savedEmail);
+    }
+  }, []);
+
+  const checkBiometric = async (emailToCheck) => {
+    try {
+      const response = await fetch(`/.netlify/functions/auth/check-biometric?email=${encodeURIComponent(emailToCheck)}`);
+      const data = await response.json();
+      setHasBiometric(data.hasBiometric);
+    } catch {
+      setHasBiometric(false);
+    }
+  };
+
+  // Cuando cambia el email, verificar biometría
+  useEffect(() => {
+    if (email && email.includes('@')) {
+      const timer = setTimeout(() => checkBiometric(email), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [email]);
 
   const handlePropuestaChange = (e) => {
     const { name, value } = e.target;
@@ -85,36 +129,234 @@ const LoginPage = ({ onLogin }) => {
     }
   }, []);
 
-  const handleSubmit = (e) => {
+  // ========================================
+  // LOGIN con email/contraseña
+  // ========================================
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     // Validaciones básicas
     if (!email || !password) {
       setError('Por favor, complete todos los campos');
+      setIsLoading(false);
       return;
     }
 
-    // Validar credenciales
-    const VALID_EMAIL = 'mandoc2@inmersion.io';
-    const VALID_PASSWORD = '19/10.25_Acc';
+    try {
+      const response = await fetch('/.netlify/functions/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-    if (email !== VALID_EMAIL) {
-      setError('Email no registrado');
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Error al iniciar sesión');
+        setIsLoading(false);
+        return;
+      }
+
+      // Login exitoso
+      localStorage.setItem('agentia_biometric_email', email);
+
+      // Ofrecer activar biometría si no la tiene
+      if (!data.hasBiometric && window.PublicKeyCredential) {
+        const activateBiometric = window.confirm(
+          '¿Deseas activar el acceso rápido con huella o Face ID para próximas sesiones?'
+        );
+        if (activateBiometric) {
+          await registerBiometric(data.user);
+        }
+      }
+
+      onLogin(data.user);
+    } catch (err) {
+      setError('Error de conexión. Verifica tu conexión a internet.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ========================================
+  // LOGIN con biometría
+  // ========================================
+  const handleBiometricLogin = async () => {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Obtener opciones de autenticación
+      const optionsResponse = await fetch('/.netlify/functions/auth/webauthn/login-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (!optionsResponse.ok) {
+        const errorData = await optionsResponse.json();
+        setError(errorData.error || 'Error al obtener opciones de autenticación');
+        setIsLoading(false);
+        return;
+      }
+
+      const { options, challenge } = await optionsResponse.json();
+
+      // Iniciar autenticación biométrica
+      const credential = await startAuthentication(options);
+
+      // Verificar en el servidor
+      const verifyResponse = await fetch('/.netlify/functions/auth/webauthn/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential, challenge, email })
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        setError(verifyData.error || 'Error en la verificación biométrica');
+        setIsLoading(false);
+        return;
+      }
+
+      // Login exitoso
+      onLogin(verifyData.user);
+    } catch (err) {
+      console.error('Error biométrico:', err);
+      setError('Error en la autenticación biométrica. Intenta con tu contraseña.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ========================================
+  // REGISTRAR biometría
+  // ========================================
+  const registerBiometric = async (user) => {
+    try {
+      // Obtener opciones de registro
+      const optionsResponse = await fetch('/.netlify/functions/auth/webauthn/register-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, email: user.email })
+      });
+
+      if (!optionsResponse.ok) return;
+
+      const { options, challenge } = await optionsResponse.json();
+
+      // Iniciar registro biométrico
+      const credential = await startRegistration(options);
+
+      // Guardar en el servidor
+      await fetch('/.netlify/functions/auth/webauthn/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          credential,
+          challenge,
+          deviceName: navigator.platform || 'Dispositivo'
+        })
+      });
+
+      setHasBiometric(true);
+    } catch (err) {
+      console.error('Error registrando biometría:', err);
+    }
+  };
+
+  // ========================================
+  // REGISTRO de nuevo usuario
+  // ========================================
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const validateInvitationCode = async () => {
+    setRegisterStatus({ type: '', message: '' });
+    setRegisterLoading(true);
+
+    try {
+      const response = await fetch('/.netlify/functions/auth/validate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo: registerForm.codigo })
+      });
+
+      const data = await response.json();
+
+      if (data.valid) {
+        setRegisterStep(2);
+      } else {
+        setRegisterStatus({ type: 'error', message: data.error || 'Código inválido' });
+      }
+    } catch {
+      setRegisterStatus({ type: 'error', message: 'Error de conexión' });
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setRegisterStatus({ type: '', message: '' });
+
+    // Validar contraseñas
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setRegisterStatus({ type: 'error', message: 'Las contraseñas no coinciden' });
       return;
     }
 
-    if (password !== VALID_PASSWORD) {
-      setError('Contraseña incorrecta');
+    if (registerForm.password.length < 6) {
+      setRegisterStatus({ type: 'error', message: 'La contraseña debe tener al menos 6 caracteres' });
       return;
     }
 
-    // Login exitoso
-    onLogin({
-      email,
-      name: 'Armando Cruz',
-      role: 'Admin'
-    });
+    setRegisterLoading(true);
+
+    try {
+      const response = await fetch('/.netlify/functions/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          codigo: registerForm.codigo,
+          nombre: registerForm.nombre,
+          institucion: registerForm.institucion,
+          email: registerForm.email,
+          password: registerForm.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setRegisterStatus({ type: 'success', message: '¡Cuenta creada! Iniciando sesión...' });
+
+        // Auto-login después de registro
+        setTimeout(() => {
+          localStorage.setItem('agentia_biometric_email', registerForm.email);
+          onLogin(data.user);
+        }, 1500);
+      } else {
+        setRegisterStatus({ type: 'error', message: data.error || 'Error al crear la cuenta' });
+      }
+    } catch {
+      setRegisterStatus({ type: 'error', message: 'Error de conexión' });
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  const closeRegisterModal = () => {
+    setShowRegisterModal(false);
+    setRegisterStep(1);
+    setRegisterForm({ codigo: '', nombre: '', institucion: '', email: '', password: '', confirmPassword: '' });
+    setRegisterStatus({ type: '', message: '' });
   };
 
   return (
@@ -189,10 +431,38 @@ const LoginPage = ({ onLogin }) => {
               </button>
             </div>
 
-            {/* Botón de login */}
-            <button type="submit" className="btn-login">
-              Entrar
-            </button>
+            {/* Botones de login */}
+            <div className="login-buttons">
+              <button type="submit" className="btn-login" disabled={isLoading}>
+                {isLoading ? 'Entrando...' : 'Entrar'}
+              </button>
+
+              {/* Botón de biometría */}
+              {hasBiometric && (
+                <button
+                  type="button"
+                  className="btn-biometric"
+                  onClick={handleBiometricLogin}
+                  disabled={isLoading}
+                  title="Acceder con huella o Face ID"
+                >
+                  <Fingerprint size={24} />
+                </button>
+              )}
+            </div>
+
+            {/* Enlace para crear cuenta */}
+            <div className="register-link">
+              <span>¿No tienes cuenta?</span>
+              <button
+                type="button"
+                onClick={() => setShowRegisterModal(true)}
+                className="btn-create-account"
+              >
+                <UserPlus size={16} />
+                Crear cuenta
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -223,6 +493,328 @@ const LoginPage = ({ onLogin }) => {
           </p>
         </div>
       </div>
+
+      {/* Modal de Registro */}
+      {showRegisterModal && (
+        <div
+          onClick={closeRegisterModal}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            backdropFilter: 'blur(4px)'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              width: '90%',
+              maxWidth: '450px',
+              background: 'white',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)'
+            }}
+          >
+            {/* Botón cerrar */}
+            <button
+              onClick={closeRegisterModal}
+              title="Cerrar"
+              style={{
+                position: 'absolute',
+                top: '15px',
+                right: '15px',
+                width: '32px',
+                height: '32px',
+                border: 'none',
+                background: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                zIndex: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Header */}
+            <div style={{
+              background: '#1a1a1a',
+              padding: '28px 20px',
+              textAlign: 'center',
+              color: 'white'
+            }}>
+              <h2 style={{
+                fontFamily: 'Dosis, sans-serif',
+                fontSize: '1.6rem',
+                fontWeight: 700,
+                margin: '0 0 6px 0',
+                color: '#ffffff'
+              }}>
+                Crear cuenta
+              </h2>
+              <p style={{
+                fontFamily: 'Dosis, sans-serif',
+                fontSize: '0.95rem',
+                opacity: 0.9,
+                margin: 0,
+                color: '#ffffff'
+              }}>
+                {registerStep === 1 ? 'Ingresa tu código de invitación' : 'Completa tus datos'}
+              </p>
+            </div>
+
+            {/* Contenido */}
+            <div style={{ padding: '24px' }}>
+              {registerStatus.message && (
+                <div style={{
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  marginBottom: '16px',
+                  background: registerStatus.type === 'success' ? '#d4edda' : '#f8d7da',
+                  color: registerStatus.type === 'success' ? '#155724' : '#721c24',
+                  border: registerStatus.type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb'
+                }}>
+                  {registerStatus.message}
+                </div>
+              )}
+
+              {registerStep === 1 ? (
+                /* Paso 1: Código de invitación */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontFamily: 'Dosis, sans-serif', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>
+                      Código de invitación
+                    </label>
+                    <input
+                      type="text"
+                      name="codigo"
+                      value={registerForm.codigo}
+                      onChange={handleRegisterChange}
+                      placeholder="Ej: ELIAS2026"
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '2px solid #ffb8a0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        fontSize: '1rem',
+                        fontFamily: 'Dosis, sans-serif',
+                        color: '#333',
+                        boxSizing: 'border-box',
+                        outline: 'none',
+                        textTransform: 'uppercase'
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={validateInvitationCode}
+                    disabled={registerLoading || !registerForm.codigo}
+                    style={{
+                      padding: '14px 20px',
+                      background: '#ffb8a0',
+                      color: '#333',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontFamily: 'Dosis, sans-serif',
+                      fontSize: '1rem',
+                      fontWeight: 600,
+                      cursor: registerLoading || !registerForm.codigo ? 'not-allowed' : 'pointer',
+                      opacity: registerLoading || !registerForm.codigo ? 0.6 : 1
+                    }}
+                  >
+                    {registerLoading ? 'Validando...' : 'Continuar'}
+                  </button>
+                </div>
+              ) : (
+                /* Paso 2: Formulario de registro */
+                <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontFamily: 'Dosis, sans-serif', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>
+                      Nombre completo *
+                    </label>
+                    <input
+                      type="text"
+                      name="nombre"
+                      value={registerForm.nombre}
+                      onChange={handleRegisterChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '2px solid #ffb8a0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        fontSize: '0.95rem',
+                        fontFamily: 'Dosis, sans-serif',
+                        color: '#333',
+                        boxSizing: 'border-box',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontFamily: 'Dosis, sans-serif', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>
+                      Institución *
+                    </label>
+                    <input
+                      type="text"
+                      name="institucion"
+                      value={registerForm.institucion}
+                      onChange={handleRegisterChange}
+                      placeholder="Ej: Universidad de Salamanca"
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '2px solid #ffb8a0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        fontSize: '0.95rem',
+                        fontFamily: 'Dosis, sans-serif',
+                        color: '#333',
+                        boxSizing: 'border-box',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontFamily: 'Dosis, sans-serif', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={registerForm.email}
+                      onChange={handleRegisterChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '2px solid #ffb8a0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        fontSize: '0.95rem',
+                        fontFamily: 'Dosis, sans-serif',
+                        color: '#333',
+                        boxSizing: 'border-box',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontFamily: 'Dosis, sans-serif', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>
+                      Contraseña *
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={registerForm.password}
+                      onChange={handleRegisterChange}
+                      required
+                      minLength={6}
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '2px solid #ffb8a0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        fontSize: '0.95rem',
+                        fontFamily: 'Dosis, sans-serif',
+                        color: '#333',
+                        boxSizing: 'border-box',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontFamily: 'Dosis, sans-serif', fontWeight: 600, color: '#333', fontSize: '0.9rem' }}>
+                      Confirmar contraseña *
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={registerForm.confirmPassword}
+                      onChange={handleRegisterChange}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px 14px',
+                        border: '2px solid #ffb8a0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                        fontSize: '0.95rem',
+                        fontFamily: 'Dosis, sans-serif',
+                        color: '#333',
+                        boxSizing: 'border-box',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setRegisterStep(1)}
+                      style={{
+                        flex: 1,
+                        padding: '14px 20px',
+                        background: '#f0f0f0',
+                        color: '#333',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontFamily: 'Dosis, sans-serif',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Atrás
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={registerLoading}
+                      style={{
+                        flex: 2,
+                        padding: '14px 20px',
+                        background: '#ffb8a0',
+                        color: '#333',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontFamily: 'Dosis, sans-serif',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        cursor: registerLoading ? 'not-allowed' : 'pointer',
+                        opacity: registerLoading ? 0.6 : 1
+                      }}
+                    >
+                      {registerLoading ? 'Creando cuenta...' : 'Crear cuenta'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Sueña con tu agente */}
       {showDreamModal && (

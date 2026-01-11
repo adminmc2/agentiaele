@@ -225,6 +225,90 @@
   transform: translateY(0);
 }
 
+.btn-login:disabled {
+  background: #888;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Contenedor de botones de login */
+.login-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.login-buttons .btn-login {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* Botón de biometría (huella/Face ID) */
+.btn-biometric {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: #ffb8a0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+}
+
+.btn-biometric:hover {
+  background: #ffa88c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 184, 160, 0.4);
+}
+
+.btn-biometric:active {
+  transform: translateY(0);
+}
+
+.btn-biometric:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  color: #999;
+}
+
+/* Enlace para crear cuenta */
+.register-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #666;
+}
+
+.btn-create-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff7918;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.btn-create-account:hover {
+  color: #e66b15;
+  text-decoration: underline;
+}
+
 /* ========================================
    COLUMNA DERECHA - ANIMACIÓN INTERACTIVA
    ======================================== */
