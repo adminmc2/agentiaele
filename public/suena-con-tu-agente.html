@@ -54,19 +54,29 @@
     }
 
     .form-container {
-      padding: 30px 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     label {
-      display: block;
+      font-family: 'Dosis', sans-serif;
       font-weight: 600;
-      margin-bottom: 8px;
       color: #333;
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
 
     input[type="text"],
@@ -74,11 +84,15 @@
     textarea,
     select {
       width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
+      padding: 12px 14px;
+      border: 2px solid #ffb8a0;
       border-radius: 10px;
-      font-family: 'Inconsolata', monospace;
+      background: #ffffff;
       font-size: 0.95rem;
+      font-family: 'Dosis', sans-serif;
+      color: #333;
+      box-sizing: border-box;
+      outline: none;
       transition: border-color 0.3s ease;
     }
 
@@ -86,49 +100,40 @@
     input[type="email"]:focus,
     textarea:focus,
     select:focus {
-      outline: none;
-      border-color: #ffb8a0;
+      border-color: #ff9977;
     }
 
     textarea {
-      min-height: 100px;
+      min-height: 80px;
       resize: vertical;
     }
 
     .btn-submit {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #ffb8a0 0%, #ffd4c4 100%);
-      color: #5a3a2f;
+      padding: 14px 20px;
+      background: #ffb8a0;
+      color: #333;
       border: none;
       border-radius: 10px;
       font-family: 'Dosis', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      margin-top: 10px;
+      margin-top: 8px;
+      transition: opacity 0.2s ease;
     }
 
     .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(255, 184, 160, 0.4);
-    }
-
-    .btn-submit:active {
-      transform: translateY(0);
+      opacity: 0.9;
     }
 
     .btn-submit:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      transform: none;
     }
 
     .message {
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 8px;
       font-weight: 500;
       display: none;
     }
@@ -149,10 +154,6 @@
       display: block;
     }
 
-    .required {
-      color: #ff9977;
-    }
-
     .footer {
       text-align: center;
       padding: 20px;
@@ -167,7 +168,11 @@
     }
 
     /* Responsive */
-    @media (max-width: 480px) {
+    @media (max-width: 560px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
       .header h1 {
         font-size: 1.5rem;
       }
@@ -179,13 +184,6 @@
       .form-container {
         padding: 20px 15px;
       }
-
-      input[type="text"],
-      input[type="email"],
-      textarea,
-      select {
-        font-size: 0.9rem;
-      }
     }
   </style>
 </head>
@@ -196,67 +194,76 @@
       <p>Nosotros te lo creamos</p>
     </div>
 
-    <div class="form-container">
+    <form id="propuestaForm" class="form-container">
       <div id="message" class="message"></div>
 
-      <form id="propuestaForm">
-        <!-- Datos del profesor -->
+      <!-- Fila: Nombre y Apellidos -->
+      <div class="form-row">
         <div class="form-group">
-          <label for="nombre">Nombre <span class="required">*</span></label>
+          <label for="nombre">Nombre *</label>
           <input type="text" id="nombre" name="nombre" required>
         </div>
-
         <div class="form-group">
-          <label for="apellidos">Apellidos <span class="required">*</span></label>
+          <label for="apellidos">Apellidos *</label>
           <input type="text" id="apellidos" name="apellidos" required>
         </div>
+      </div>
 
+      <!-- Fila: Email y Repetir email -->
+      <div class="form-row">
         <div class="form-group">
-          <label for="email">Email <span class="required">*</span></label>
+          <label for="email">Email *</label>
           <input type="email" id="email" name="email" required>
         </div>
-
-        <!-- Contexto educativo -->
         <div class="form-group">
-          <label for="nivel_estudiantes">Nivel de tus estudiantes <span class="required">*</span></label>
-          <select id="nivel_estudiantes" name="nivel_estudiantes" required>
-            <option value="">Selecciona un nivel</option>
-            <option value="A1">A1 - Principiante</option>
-            <option value="A2">A2 - Elemental</option>
-            <option value="B1">B1 - Intermedio</option>
-            <option value="B2">B2 - Intermedio Alto</option>
-            <option value="C1">C1 - Avanzado</option>
-            <option value="C2">C2 - Maestría</option>
-            <option value="Mixto">Niveles mixtos</option>
-          </select>
+          <label for="email_confirmacion">Repetir email *</label>
+          <input type="email" id="email_confirmacion" name="email_confirmacion" required>
         </div>
+      </div>
 
-        <!-- Propuesta del agente -->
-        <div class="form-group">
-          <label for="nombre_agente">Nombre del agente <span class="required">*</span></label>
-          <input type="text" id="nombre_agente" name="nombre_agente" placeholder="Ej: Asistente de Gramática Interactivo" required>
-        </div>
+      <!-- Nivel de estudiantes -->
+      <div class="form-group">
+        <label for="nivel_estudiantes">Nivel de tus estudiantes *</label>
+        <select id="nivel_estudiantes" name="nivel_estudiantes" required>
+          <option value="">Selecciona un nivel</option>
+          <option value="A1">A1 - Principiante</option>
+          <option value="A2">A2 - Elemental</option>
+          <option value="B1">B1 - Intermedio</option>
+          <option value="B2">B2 - Intermedio Alto</option>
+          <option value="C1">C1 - Avanzado</option>
+          <option value="C2">C2 - Maestría</option>
+          <option value="Mixto">Niveles mixtos</option>
+        </select>
+      </div>
 
-        <div class="form-group">
-          <label for="descripcion_agente">Descripción del agente <span class="required">*</span></label>
-          <textarea id="descripcion_agente" name="descripcion_agente" placeholder="Describe cómo sería tu agente ideal..." required></textarea>
-        </div>
+      <!-- Nombre del agente -->
+      <div class="form-group">
+        <label for="nombre_agente">Nombre del agente *</label>
+        <input type="text" id="nombre_agente" name="nombre_agente" placeholder="Ej: Asistente de Gramática Interactivo" required>
+      </div>
 
-        <div class="form-group">
-          <label for="objetivo">Objetivo pedagógico <span class="required">*</span></label>
-          <textarea id="objetivo" name="objetivo" placeholder="¿Qué objetivo educativo quieres alcanzar con este agente?" required></textarea>
-        </div>
+      <!-- Descripcion del agente -->
+      <div class="form-group">
+        <label for="descripcion_agente">Descripción del agente *</label>
+        <textarea id="descripcion_agente" name="descripcion_agente" placeholder="Ej: Un asistente que ayude a practicar la conjugación de verbos irregulares en presente. Debería corregir errores de forma amable, dar pistas cuando el estudiante se equivoque y proponer ejercicios de dificultad progresiva." required></textarea>
+      </div>
 
-        <div class="form-group">
-          <label for="ejemplo_uso">Ejemplo de uso <span class="required">*</span></label>
-          <textarea id="ejemplo_uso" name="ejemplo_uso" placeholder="Describe un caso concreto de cómo usarías este agente en clase..." required></textarea>
-        </div>
+      <!-- Objetivo pedagogico -->
+      <div class="form-group">
+        <label for="objetivo">Objetivo pedagógico *</label>
+        <textarea id="objetivo" name="objetivo" placeholder="¿Qué objetivo educativo quieres alcanzar?" required></textarea>
+      </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">
-          Enviar propuesta
-        </button>
-      </form>
-    </div>
+      <!-- Ejemplo de uso -->
+      <div class="form-group">
+        <label for="ejemplo_uso">Ejemplo de uso *</label>
+        <textarea id="ejemplo_uso" name="ejemplo_uso" placeholder="Ej: En una clase de B1, después de explicar el pretérito indefinido, los estudiantes interactúan con el agente para practicar. El agente les propone completar frases como 'Ayer yo (comer) paella' y les da feedback inmediato." required></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        Enviar propuesta
+      </button>
+    </form>
 
     <div class="footer">
       <p>Creado con <a href="https://agentiaele.netlify.app">AgentiaELE</a></p>
@@ -281,6 +288,15 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const email = document.getElementById('email').value.trim();
+      const emailConfirmacion = document.getElementById('email_confirmacion').value.trim();
+
+      // Validar que los emails coincidan
+      if (email !== emailConfirmacion) {
+        showMessage('Los emails no coinciden. Por favor, verifica.', 'error');
+        return;
+      }
+
       // Deshabilitar botón
       submitBtn.disabled = true;
       submitBtn.textContent = 'Enviando...';
@@ -289,7 +305,7 @@
       const formData = {
         nombre: document.getElementById('nombre').value.trim(),
         apellidos: document.getElementById('apellidos').value.trim(),
-        email: document.getElementById('email').value.trim(),
+        email: email,
         nivel_estudiantes: document.getElementById('nivel_estudiantes').value,
         nombre_agente: document.getElementById('nombre_agente').value.trim(),
         descripcion_agente: document.getElementById('descripcion_agente').value.trim(),
