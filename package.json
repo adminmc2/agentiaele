@@ -16,6 +16,7 @@
     "@simplewebauthn/server": "^13.2.2",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
+    "esbuild": "^0.27.2",
     "gsap": "^3.13.0",
     "lucide-react": "^0.554.0",
     "react": "^19.2.0",
