@@ -24,6 +24,12 @@
   node_bundler = "esbuild"
   # Directory for functions
   directory = "netlify/functions"
+  # Included files
+  included_files = ["netlify/functions/**"]
+
+[functions."*"]
+  # ESM support
+  external_node_modules = ["@neondatabase/serverless", "bcryptjs", "@simplewebauthn/server"]
 
 # API redirects - route /api/* to functions
 [[redirects]]
