@@ -164,12 +164,16 @@ const LoginPage = ({ onLogin }) => {
       // Login exitoso
       localStorage.setItem('agentia_biometric_email', email);
 
-      // Verificar si puede registrar biometría
+      // Verificar si puede registrar biometría (solo si el dispositivo soporta autenticador de plataforma)
       if (!data.hasBiometric && window.PublicKeyCredential) {
-        setLoggedInUser(data.user);
-        setCanRegisterBiometric(true);
-        // No hacer login todavía, mostrar opción de activar biometría
-        return;
+        // Verificar si el dispositivo tiene autenticador de plataforma (Touch ID, Face ID, Windows Hello)
+        const platformAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        if (platformAvailable) {
+          setLoggedInUser(data.user);
+          setCanRegisterBiometric(true);
+          // No hacer login todavía, mostrar opción de activar biometría
+          return;
+        }
       }
 
       onLogin(data.user);
@@ -205,7 +209,7 @@ const LoginPage = ({ onLogin }) => {
       const { options, challenge } = await optionsResponse.json();
 
       // Iniciar autenticación biométrica
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       // Verificar en el servidor
       const verifyResponse = await fetch('/.netlify/functions/auth/webauthn/login', {
@@ -244,12 +248,16 @@ const LoginPage = ({ onLogin }) => {
         body: JSON.stringify({ userId: user.id, email: user.email })
       });
 
-      if (!optionsResponse.ok) return;
+      if (!optionsResponse.ok) {
+        console.error('Error obteniendo opciones de registro');
+        return;
+      }
 
       const { options, challenge } = await optionsResponse.json();
 
-      // Iniciar registro biométrico
-      const credential = await startRegistration(options);
+      // Iniciar registro biométrico - usar solo autenticador de plataforma
+      // El parámetro useAutoRegister: false evita que muestre opciones alternativas como QR
+      const credential = await startRegistration({ optionsJSON: options });
 
       // Guardar en el servidor
       const registerResponse = await fetch('/.netlify/functions/auth/webauthn/register', {
@@ -259,7 +267,10 @@ const LoginPage = ({ onLogin }) => {
           userId: user.id,
           credential,
           challenge,
-          deviceName: navigator.platform || 'Dispositivo'
+          deviceName: navigator.userAgent.includes('Mac') ? 'Mac con Touch ID' :
+                      navigator.userAgent.includes('iPhone') ? 'iPhone con Face ID' :
+                      navigator.userAgent.includes('iPad') ? 'iPad con Face ID/Touch ID' :
+                      navigator.platform || 'Dispositivo'
         })
       });
 
@@ -269,6 +280,7 @@ const LoginPage = ({ onLogin }) => {
         setHasBiometric(true);
       }
     } catch (err) {
+      // Si el usuario cancela o hay error, simplemente continuar sin biometría
       console.error('Error registrando biometría:', err);
     }
   };
