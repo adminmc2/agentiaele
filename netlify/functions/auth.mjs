@@ -302,10 +302,10 @@ export async function handler(event) {
           };
         }
 
-        const { credential, credentialPublicKey, counter } = verification.registrationInfo;
+        const { credential: credentialInfo, credentialPublicKey, counter } = verification.registrationInfo;
 
         // En versiones recientes de simplewebauthn, credentialID está en credential.id
-        const credentialID = credential?.id || verification.registrationInfo.credentialID;
+        const credentialID = credentialInfo?.id || verification.registrationInfo.credentialID;
 
         // Convertir a base64url (pueden ser Uint8Array o Buffer)
         const credIdBase64 = typeof credentialID === 'string'
