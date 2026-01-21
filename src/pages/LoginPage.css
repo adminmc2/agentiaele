@@ -245,37 +245,44 @@
   margin-top: 0;
 }
 
-/* Botón de biometría (huella/Face ID) */
-.btn-biometric {
+/* Botón de acceso biométrico completo (debajo de ENTRAR) */
+.btn-biometric-full {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  background: #ffb8a0;
-  border: none;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+  margin-top: 12px;
+  background: transparent;
+  border: 2px solid #2c2c2c;
   border-radius: 8px;
+  font-family: var(--font-headings);
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c2c2c;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #333;
 }
 
-.btn-biometric:hover {
-  background: #ffa88c;
+.btn-biometric-full:hover {
+  background: #2c2c2c;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 184, 160, 0.4);
+  box-shadow: 0 4px 12px rgba(44, 44, 44, 0.2);
 }
 
-.btn-biometric:active {
+.btn-biometric-full:active {
   transform: translateY(0);
 }
 
-.btn-biometric:disabled {
-  background: #e0e0e0;
+.btn-biometric-full:disabled {
+  background: transparent;
+  border-color: #ccc;
+  color: #999;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-  color: #999;
 }
 
 /* Panel de activación de biometría */

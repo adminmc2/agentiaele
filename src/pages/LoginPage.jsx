@@ -252,7 +252,7 @@ const LoginPage = ({ onLogin }) => {
       const credential = await startRegistration(options);
 
       // Guardar en el servidor
-      await fetch('/.netlify/functions/auth/webauthn/register', {
+      const registerResponse = await fetch('/.netlify/functions/auth/webauthn/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -263,7 +263,11 @@ const LoginPage = ({ onLogin }) => {
         })
       });
 
-      setHasBiometric(true);
+      if (registerResponse.ok) {
+        // Guardar email para futuras autenticaciones biométricas
+        localStorage.setItem('agentia_biometric_email', user.email);
+        setHasBiometric(true);
+      }
     } catch (err) {
       console.error('Error registrando biometría:', err);
     }
@@ -437,19 +441,20 @@ const LoginPage = ({ onLogin }) => {
                 {isLoading ? 'Entrando...' : 'Entrar'}
               </button>
 
-              {/* Botón de biometría */}
-              {hasBiometric && (
-                <button
-                  type="button"
-                  className="btn-biometric"
-                  onClick={handleBiometricLogin}
-                  disabled={isLoading}
-                  title="Acceder con huella o Face ID"
-                >
-                  <Fingerprint size={24} />
-                </button>
-              )}
             </div>
+
+            {/* Botón de acceso biométrico */}
+            {hasBiometric && (
+              <button
+                type="button"
+                className="btn-biometric-full"
+                onClick={handleBiometricLogin}
+                disabled={isLoading}
+              >
+                <Fingerprint size={20} />
+                <span>Acceder con huella o Face ID</span>
+              </button>
+            )}
 
             {/* Enlace para crear cuenta */}
             <div className="register-link">
@@ -476,7 +481,7 @@ const LoginPage = ({ onLogin }) => {
                   <ScanFace size={32} />
                 </div>
               </div>
-              <h3>¡Bienvenido, {loggedInUser.nombre}!</h3>
+              <h3>Bienvenido</h3>
               <p>Activa el acceso rápido con huella o Face ID para próximas sesiones</p>
               <div className="biometric-buttons">
                 <button

@@ -302,10 +302,26 @@ export async function handler(event) {
           };
         }
 
-        const { credential: credentialInfo, credentialPublicKey, counter } = verification.registrationInfo;
+        // En simplewebauthn v13+, la estructura es: registrationInfo.credential contiene id y publicKey
+        const regInfo = verification.registrationInfo;
 
-        // En versiones recientes de simplewebauthn, credentialID está en credential.id
-        const credentialID = credentialInfo?.id || verification.registrationInfo.credentialID;
+        // Obtener credentialID - puede estar en credential.id o directamente en credentialID
+        const credentialID = regInfo.credential?.id || regInfo.credentialID;
+
+        // Obtener publicKey - puede estar en credential.publicKey o directamente en credentialPublicKey
+        const credentialPublicKey = regInfo.credential?.publicKey || regInfo.credentialPublicKey;
+
+        // Obtener counter
+        const counter = regInfo.credential?.counter ?? regInfo.counter ?? 0;
+
+        if (!credentialID || !credentialPublicKey) {
+          console.error('registrationInfo structure:', JSON.stringify(regInfo, null, 2));
+          return {
+            statusCode: 400,
+            headers,
+            body: JSON.stringify({ error: 'No se pudo obtener la credencial' })
+          };
+        }
 
         // Convertir a base64url (pueden ser Uint8Array o Buffer)
         const credIdBase64 = typeof credentialID === 'string'
@@ -381,12 +397,31 @@ export async function handler(event) {
         };
       }
 
+      // En simplewebauthn v12+, allowCredentials espera string base64url para id (no Uint8Array)
+      const allowCredentials = users.map(u => {
+        // credential_id debe ser string base64url
+        let credIdStr;
+        if (typeof u.credential_id === 'string') {
+          // Ya es string, usarlo directamente
+          credIdStr = u.credential_id;
+        } else if (Buffer.isBuffer(u.credential_id)) {
+          // Convertir Buffer a base64url string
+          credIdStr = u.credential_id.toString('base64url');
+        } else if (u.credential_id instanceof Uint8Array) {
+          credIdStr = Buffer.from(u.credential_id).toString('base64url');
+        } else {
+          // Intentar convertir desde cualquier objeto
+          credIdStr = Buffer.from(u.credential_id).toString('base64url');
+        }
+        return {
+          id: credIdStr
+          // 'type' ya no es necesario en v12+
+        };
+      });
+
       const options = await generateAuthenticationOptions({
         rpID,
-        allowCredentials: users.map(u => ({
-          id: Buffer.from(u.credential_id, 'base64url'),
-          type: 'public-key'
-        })),
+        allowCredentials,
         userVerification: 'preferred'
       });
 
@@ -434,14 +469,35 @@ export async function handler(event) {
       const storedCred = credResult[0];
 
       try {
+        // En simplewebauthn v13+, credential espera Uint8Array para publicKey
+        // Manejar tanto string como Buffer para public_key y credential_id
+        let pubKeyBuffer;
+        if (typeof storedCred.public_key === 'string') {
+          pubKeyBuffer = Buffer.from(storedCred.public_key, 'base64url');
+        } else if (Buffer.isBuffer(storedCred.public_key)) {
+          pubKeyBuffer = storedCred.public_key;
+        } else {
+          pubKeyBuffer = Buffer.from(storedCred.public_key);
+        }
+
+        // credential_id debe ser string para la verificación
+        let credentialIdStr;
+        if (typeof storedCred.credential_id === 'string') {
+          credentialIdStr = storedCred.credential_id;
+        } else if (Buffer.isBuffer(storedCred.credential_id)) {
+          credentialIdStr = storedCred.credential_id.toString('base64url');
+        } else {
+          credentialIdStr = Buffer.from(storedCred.credential_id).toString('base64url');
+        }
+
         const verification = await verifyAuthenticationResponse({
           response: credential,
           expectedChallenge: challenge,
           expectedOrigin: origin,
           expectedRPID: rpID,
-          authenticator: {
-            credentialID: Buffer.from(storedCred.credential_id, 'base64url'),
-            credentialPublicKey: Buffer.from(storedCred.public_key, 'base64url'),
+          credential: {
+            id: credentialIdStr,
+            publicKey: new Uint8Array(pubKeyBuffer),
             counter: storedCred.counter
           }
         });

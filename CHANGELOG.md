@@ -9,6 +9,63 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [0.7.2] - Sistema de Autenticación Propio + WebAuthn (Enero 2026) 🔐
+
+### ✨ Agregado
+
+#### **Sistema de Autenticación Personalizado**
+- **Autenticación con email/contraseña**:
+  - Hash de contraseñas con bcrypt (10 rounds)
+  - Login seguro con verificación de credenciales
+  - Respuestas JSON con datos de usuario (id, nombre, email, rol)
+- **Sistema de códigos de invitación**:
+  - Registro cerrado solo con código válido
+  - Códigos con fecha de expiración opcional
+  - Marcado automático como "usado" al registrar
+  - Validación previa antes del registro
+- **WebAuthn/Passkeys (Autenticación biométrica)**:
+  - Soporte para huella digital y Face ID
+  - Registro de credenciales con @simplewebauthn/server v13
+  - Login biométrico sin contraseña
+  - Múltiples dispositivos por usuario
+  - Almacenamiento seguro de credenciales en base64url
+
+#### **Tablas de Autenticación** 📊
+- **`usuarios`**: Almacena usuarios del sistema
+  - Campos: id (UUID), nombre, institucion, email, password_hash, rol
+  - Timestamps: created_at, updated_at
+- **`codigos_invitacion`**: Gestión de códigos de acceso
+  - Campos: id, codigo, descripcion, usado, usado_por, expires_at
+  - Códigos únicos en mayúsculas
+- **`credenciales_webauthn`**: Credenciales biométricas
+  - Campos: id, usuario_id, credential_id, public_key, counter, device_name
+  - Relación con tabla usuarios
+
+#### **API de Autenticación** 🔌
+- **`POST /api/auth/validate-code`** - Validar código de invitación
+- **`POST /api/auth/register`** - Registrar nuevo usuario
+- **`POST /api/auth/login`** - Login email/contraseña
+- **`GET /api/auth/check-biometric`** - Verificar si usuario tiene biometría
+- **`POST /api/auth/webauthn/register-options`** - Opciones para registrar biometría
+- **`POST /api/auth/webauthn/register`** - Guardar credencial biométrica
+- **`POST /api/auth/webauthn/login-options`** - Opciones para login biométrico
+- **`POST /api/auth/webauthn/login`** - Verificar login biométrico
+
+### 📁 Archivos Nuevos
+- `netlify/functions/auth.mjs` - API completa de autenticación
+- `netlify/functions/setup-auth-tables.mjs` - Migración de tablas de auth
+
+### 🔄 Cambiado
+- **Funciones Netlify migradas a ESM** (.mjs) para soporte de módulos ES6
+- **LoginPage** actualizado con botón de acceso biométrico
+- **AuthContext** conectado con API de autenticación propia
+
+### ⚠️ Deprecado
+- Referencias a Auth0/Clerk en documentación (nunca fueron implementados)
+- Ver [ROADMAP.md](ROADMAP.md) para opciones futuras de autenticación
+
+---
+
 ## [0.7.1] - Formulario "Sueña con tu agente" + Correcciones (Enero 2026) 💭
 
 ### ✨ Agregado
@@ -44,8 +101,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Git push fallaba**: Cambiado remote de HTTPS a SSH para push automático
 
 ### 📁 Archivos Nuevos
-- `netlify/functions/propuestas.js` - API de propuestas de agentes
-- `netlify/functions/setup-db.js` - Función de migración para producción
+- `netlify/functions/propuestas.mjs` - API de propuestas de agentes
+- `netlify/functions/setup-db.mjs` - Función de migración para producción
 - `public/suena-con-tu-agente.html` - Formulario HTML de propuestas
 - `public/em1.jpg` - Imagen de portada para curso EM1
 - `run-migration.js` - Script de migración local
@@ -126,8 +183,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Error de Vite** parseando HTML como JavaScript
 
 ### 📁 Archivos Nuevos
-- `netlify/functions/courses.js` - API CRUD de cursos
-- `netlify/functions/upload.js` - API de upload de imágenes
+- `netlify/functions/courses.mjs` - API CRUD de cursos
+- `netlify/functions/upload.mjs` - API de upload de imágenes
 - `src/services/courseService.js` - Servicio frontend de cursos
 - `database/migration_cursos_espanol.sql` - Migración SQL
 - `public/_redirects` - Redirects para producción
@@ -166,7 +223,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Eliminada superposición del menú con el contenido del gráfico
 
 ### 📁 Archivos Modificados
-- `elias-mvp/src/pages/Dashboard.css`: Estilos del gráfico de barras y menú desplegable
+- `src/pages/Dashboard.css`: Estilos del gráfico de barras y menú desplegable
 
 ---
 
@@ -206,9 +263,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **Colores del sistema de diseño**: Se reemplazaron colores hardcodeados por variables CSS (`var(--primary-dark)`, `var(--primary-pastel-bg)`)
 
 ### 📁 Archivos Modificados
-- `elias-mvp/src/pages/admin/CourseActivityPage.jsx`: Componente de página con tarjetas y búsqueda
-- `elias-mvp/src/pages/admin/CourseActivityPage.css`: Estilos para tarjetas de actividad
-- `elias-mvp/src/index.css`: Variables de diseño utilizadas en las tarjetas
+- `src/pages/admin/CourseActivityPage.jsx`: Componente de página con tarjetas y búsqueda
+- `src/pages/admin/CourseActivityPage.css`: Estilos para tarjetas de actividad
+- `src/index.css`: Variables de diseño utilizadas en las tarjetas
 
 ---
 
@@ -448,11 +505,11 @@ Versión MVP enfocada en **MOMENTO 1: CLASE** - Aprendizaje guiado con IA, sin e
 - 512 MB RAM, 3 GB storage
 - Serverless PostgreSQL 17 con auto-scaling
 
-#### **Autenticación Básica**
-- Autenticación con **Auth0** (7,000 MAU gratis) o **Clerk** (10,000 MAU gratis)
-- JWT tokens para autorización
-- Netlify Functions con middleware de autenticación
-- Rutas protegidas en frontend
+#### **Autenticación Básica** *(Planificado - Implementado en v0.7.2)*
+- ~~Autenticación con Auth0 o Clerk~~ → Implementación propia con bcrypt + WebAuthn
+- Sistema de códigos de invitación para registro cerrado
+- Autenticación biométrica (huella/Face ID) con WebAuthn
+- Rutas protegidas en frontend con AuthContext
 
 #### **Dashboard de Usuario Básico** 👤
 - Progreso simple
@@ -492,11 +549,12 @@ Versión MVP enfocada en **MOMENTO 1: CLASE** - Aprendizaje guiado con IA, sin e
 ### 💰 Costos Estimados MVP
 - $5-10/mes total (100 usuarios beta)
 - Neon.tech PostgreSQL: $0 (GRATIS para siempre - 512 MB, 3 GB)
-- Auth0/Clerk: $0 (Free tier - 7,000-10,000 MAU)
+- Autenticación propia: $0 (bcrypt + WebAuthn sin servicios externos)
 - Netlify: $0 (Free tier - 100 GB bandwidth/mes)
 - DeepSeek API: ~$5-10/mes
 
 ✅ Infraestructura 100% gratis sin límite de tiempo
+📝 Ver [ROADMAP.md](ROADMAP.md) para opciones futuras de Auth0/Clerk
 
 ### 📊 Métricas MVP
 - **6 tablas** en base de datos (MOMENTO 1: Clase)
@@ -573,13 +631,13 @@ Esta versión añade **MOMENTO 2: REPASO** - Práctica personalizada con evaluac
 
 **Total**: 16 tablas en **Neon.tech PostgreSQL 17**
 
-#### **Autenticación y Roles**
-- Autenticación con **Auth0** o **Clerk**
+#### **Autenticación y Roles** *(Parcialmente implementado en v0.7.2)*
+- Sistema de autenticación propio con bcrypt + WebAuthn
+- ~~Auth0 o Clerk~~ → Ver [ROADMAP.md](ROADMAP.md) para opciones futuras
 - Sistema de roles: Usuario y Superadministrador (almacenado en PostgreSQL)
-- JWT tokens validados en Netlify Functions
-- SQL prepared statements para seguridad
-- Políticas de acceso en backend y frontend
-- Rutas protegidas en frontend
+- Códigos de invitación para registro controlado
+- Autenticación biométrica opcional (WebAuthn/Passkeys)
+- Rutas protegidas en frontend con AuthContext
 
 #### **Dashboard de Usuario** 👤
 - Progreso visual con gráficos
@@ -659,26 +717,26 @@ Esta versión añade **MOMENTO 2: REPASO** - Práctica personalizada con evaluac
 **MVP (100 usuarios beta) - GRATIS PARA SIEMPRE**:
 - $5-10/mes total (solo DeepSeek API)
 - Neon.tech: $0 (GRATIS para siempre)
-- Auth0/Clerk: $0 (Free Tier permanente)
+- Autenticación propia: $0 (sin servicios externos)
 - Netlify: $0 (Free Tier)
 - ~80% cache hit rate
 
 **Producción (500-1000 usuarios) - Con Neon.tech Free**:
 - Sin caché: $52/mes
 - Con caché: $18/mes (65% ahorro)
-- Infraestructura: $0 (Neon.tech + Auth0/Clerk gratis)
+- Infraestructura: $0 (Neon.tech + Auth propia)
 - DeepSeek API: $8/mes con caché (81% ahorro en IA)
 
 **Escalado (1000-5000 usuarios) - Neon.tech Pro**:
 - Sin caché: $105/mes
 - Con caché: $71/mes (32% ahorro)
 - Neon.tech Pro: $19/mes
-- Auth0 Essentials: $25/mes
+- Auth propia: $0 (o Auth0/Clerk si se migra - ver ROADMAP.md)
 - Netlify Pro: $19/mes
 - DeepSeek API: $8/mes con caché
 
 **Alternativa (cuando necesites features avanzados)**:
-- Opción Supabase Pro: $52/mes con caché (BD + Auth + Storage integrado)
+- Ver [ROADMAP.md](ROADMAP.md) para opciones Auth0/Clerk/Supabase
 
 ### 📊 Métricas v1.0.0
 
