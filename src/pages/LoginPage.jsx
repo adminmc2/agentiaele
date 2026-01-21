@@ -3,7 +3,7 @@
 // ========================================
 
 import { useState, useEffect, useRef } from 'react';
-import { X, Fingerprint, UserPlus } from 'lucide-react';
+import { X, Fingerprint, UserPlus, ScanFace } from 'lucide-react';
 import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
 import './LoginPage.css';
 import { initCreatures } from './creatures.js';
@@ -18,6 +18,8 @@ const LoginPage = ({ onLogin }) => {
   const [showDreamModal, setShowDreamModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [hasBiometric, setHasBiometric] = useState(false);
+  const [canRegisterBiometric, setCanRegisterBiometric] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
   const stageRef = useRef(null);
 
   // Estado del formulario de registro
@@ -162,14 +164,12 @@ const LoginPage = ({ onLogin }) => {
       // Login exitoso
       localStorage.setItem('agentia_biometric_email', email);
 
-      // Ofrecer activar biometría si no la tiene
+      // Verificar si puede registrar biometría
       if (!data.hasBiometric && window.PublicKeyCredential) {
-        const activateBiometric = window.confirm(
-          '¿Deseas activar el acceso rápido con huella o Face ID para próximas sesiones?'
-        );
-        if (activateBiometric) {
-          await registerBiometric(data.user);
-        }
+        setLoggedInUser(data.user);
+        setCanRegisterBiometric(true);
+        // No hacer login todavía, mostrar opción de activar biometría
+        return;
       }
 
       onLogin(data.user);
@@ -464,6 +464,42 @@ const LoginPage = ({ onLogin }) => {
               </button>
             </div>
           </form>
+
+          {/* Panel de activación de biometría */}
+          {canRegisterBiometric && loggedInUser && (
+            <div className="biometric-activation-panel">
+              <div className="biometric-icons">
+                <div className="biometric-icon">
+                  <Fingerprint size={32} />
+                </div>
+                <div className="biometric-icon">
+                  <ScanFace size={32} />
+                </div>
+              </div>
+              <h3>¡Bienvenido, {loggedInUser.nombre}!</h3>
+              <p>Activa el acceso rápido con huella o Face ID para próximas sesiones</p>
+              <div className="biometric-buttons">
+                <button
+                  className="btn-activate-biometric"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    await registerBiometric(loggedInUser);
+                    onLogin(loggedInUser);
+                  }}
+                  disabled={isLoading}
+                >
+                  <Fingerprint size={18} />
+                  {isLoading ? 'Activando...' : 'Activar acceso biométrico'}
+                </button>
+                <button
+                  className="btn-skip-biometric"
+                  onClick={() => onLogin(loggedInUser)}
+                >
+                  Ahora no, gracias
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
