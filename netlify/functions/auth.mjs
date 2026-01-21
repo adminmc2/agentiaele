@@ -397,7 +397,9 @@ export async function handler(event) {
         };
       }
 
-      // En simplewebauthn v12+, allowCredentials espera string base64url para id (no Uint8Array)
+      // En simplewebauthn v12+, allowCredentials espera string base64url para id
+      // Incluimos transports: ['internal'] para indicar que son autenticadores de plataforma
+      // Esto evita que el navegador muestre opciones de QR para dispositivos externos
       const allowCredentials = users.map(u => {
         // credential_id debe ser string base64url
         let credIdStr;
@@ -414,8 +416,8 @@ export async function handler(event) {
           credIdStr = Buffer.from(u.credential_id).toString('base64url');
         }
         return {
-          id: credIdStr
-          // 'type' ya no es necesario en v12+
+          id: credIdStr,
+          transports: ['internal'] // Forzar autenticador de plataforma (Touch ID, Face ID, Windows Hello)
         };
       });
 
